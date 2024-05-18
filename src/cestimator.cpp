@@ -1,3 +1,14 @@
+/*
+    author: Tristan Britt
+    email: hello@tbritt.xyz
+    
+    file: cestimator.cpp
+    license: gpl_v3
+
+    this is the implementation for all the things that makes the main
+    routine work
+
+*/
 #include "cestimator.hpp"
 
 int main(int argc, char *argv[]) {

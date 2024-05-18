@@ -1,3 +1,13 @@
+/*
+    author: Tristan Britt
+    email: hello@tbritt.xyz
+    
+    file: robust.cpp
+    license: gpl_v3
+
+    this is the main code for a robust estimator
+
+*/
 #include "estimators.hpp"
 
 estimator_result hubert_M(MatrixXd x){

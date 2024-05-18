@@ -1,3 +1,16 @@
+/*
+    author: Tristan Britt
+    email: hello@tbritt.xyz
+    
+    file: cestimator.hpp
+    license: gpl_v3
+
+    this is the header for all the things that makes the main
+    routine work, including the referrals to the estimator
+    implementations
+
+*/
+
 #include <cmath>
 #include <cassert>
 #include <iostream>

@@ -1,3 +1,16 @@
+/*
+    author: Tristan Britt
+    email: hello@tbritt.xyz
+    
+    file: utils.cpp
+    license: gpl_v3
+
+    this is the implementation for all utilities of the project,
+    namely anything not theoretically driving the main results,
+    but necessary to get there
+
+*/
+
 #include "utils.hpp"
 
 using namespace Eigen;
