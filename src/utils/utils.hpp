@@ -50,14 +50,6 @@ namespace Utils {
         static const std::string BOLD;
         static const std::string UNDERLINE;
     };
-
-    template<typename T>
-    static inline double lerp(T v0, T v1, T t);
-
-
-    template<typename T>
-    static inline std::vector<T> quantile(const std::vector<T>& inData, const std::vector<T>& probs);
-
 }
 
 class Utils::Timer {
