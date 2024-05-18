@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     timers[1].name = "nonparametric";
     timers[2].name = "shrinkage";
     timers[3].name = "MLE";
-    timers[4].name = "robust";
+    timers[4].name = "robustttt";
 
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
@@ -49,10 +49,11 @@ int main(int argc, char *argv[]) {
     timers[2].stop();
 
     timers[3].start();
-    // auto res3 = Estimator::robust(X);
+    pprint(Estimator::maximum_likelihood(X), timers[3].name);
     timers[3].stop();
 
     timers[4].start();
+    pprint(Estimator::robust(X), timers[4].name);
     timers[4].stop();
 
     Utils::goodbye(timers);
