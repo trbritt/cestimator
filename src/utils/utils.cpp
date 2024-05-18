@@ -16,6 +16,17 @@
 using namespace Eigen;
 
 namespace Utils {
+
+    const std::string Colors::HEADER = "\033[95m";
+    const std::string Colors::OKBLUE = "\033[94m";
+    const std::string Colors::OKCYAN = "\033[96m";
+    const std::string Colors::OKGREEN = "\033[92m";
+    const std::string Colors::WARNING = "\033[93m";
+    const std::string Colors::FAIL = "\033[91m";
+    const std::string Colors::ENDC = "\033[0m";
+    const std::string Colors::BOLD = "\033[1m";
+    const std::string Colors::UNDERLINE = "\033[4m";
+
     Vector2d mean(MatrixXd x){
         return x.rowwise().mean();
     }

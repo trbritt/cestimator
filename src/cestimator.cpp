@@ -21,6 +21,15 @@ int main(int argc, char *argv[]) {
     int dim1 = std::stoi(argv[2]);
     int dim2 = std::stoi(argv[3]);
 
+    Utils::banner(fname, dim1, dim2);
+    std::vector<Utils::Timer> timers(5);
+    timers[0].name = "loading";
+    timers[1].name = "nonparametric";
+    timers[2].name = "shrinkage";
+    timers[3].name = "MLE";
+    timers[4].name = "robust";
+
+    timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
     // std::cout << data(all, last) << std::endl;
@@ -28,19 +37,25 @@ int main(int argc, char *argv[]) {
     Y.transposeInPlace();
 
     MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
+    timers[0].stop();
 
-    auto res = Estimator::non_parametric(X);
-    Vector2d mu_nonpar = std::get<0>(res);
-    MatrixXd sigma_nonpar = std::get<1>(res);
+    timers[1].start();
+    pprint(Estimator::non_parametric(X), timers[1].name);
+    timers[1].stop();
 
-    auto res2 = Estimator::shrinkage(X);
-    Vector2d mu_shr = std::get<0>(res2);
-    MatrixXd sigma_shr = std::get<1>(res2);
+    timers[2].start();
+    pprint(Estimator::shrinkage(X), timers[2].name);
 
+    timers[2].stop();
+
+    timers[3].start();
     // auto res3 = Estimator::robust(X);
+    timers[3].stop();
 
-    std::cout << mu_nonpar << " "  << mu_shr << std::endl;
-    std::cout << sigma_nonpar << " "  << sigma_shr << std::endl;
+    timers[4].start();
+    timers[4].stop();
+
+    Utils::goodbye(timers);
 
     return 0;
 }
