@@ -12,10 +12,10 @@
 #include "estimators.hpp"
 #include "../utils/utils.hpp"
 
-estimator_result non_parametric_estimation(MatrixXd x){
-    Vector2d mu = mean(x);
+Estimator::Result Estimator::non_parametric(MatrixXd x){
+    Vector2d mu = Utils::mean(x);
     
-    MatrixXd sigma = covariance(x);
+    MatrixXd sigma = Utils::covariance(x);
 
     return std::make_tuple(mu, sigma);
 }

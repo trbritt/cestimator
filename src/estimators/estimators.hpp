@@ -16,10 +16,13 @@
 
 using namespace Eigen;
 
-typedef std::tuple<Vector2d, MatrixXd> estimator_result;
+namespace Estimator{
 
-estimator_result non_parametric_estimation(MatrixXd x);
+    typedef std::tuple<Vector2d, MatrixXd> Result;
 
-estimator_result shrinkage_estimation(MatrixXd x);
+    Result non_parametric(MatrixXd x);
 
-estimator_result hubert_M(MatrixXd x);
+    Result shrinkage(MatrixXd x);
+
+    Result robust(MatrixXd x);
+}

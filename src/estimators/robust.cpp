@@ -10,7 +10,7 @@
 */
 #include "estimators.hpp"
 
-estimator_result hubert_M(MatrixXd x){
+Estimator::Result Estimator::robust(MatrixXd x){
     const double tolerance = 1e-6;
     const double error = 1e6;
 

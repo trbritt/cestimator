@@ -51,7 +51,7 @@ M load_csv (const std::string & path) {
         // std::cout << std::endl;
         ++rows;
     }
-    return Eigen::Map<const Eigen::Matrix<typename M::Scalar, M::RowsAtCompileTime, M::ColsAtCompileTime, Eigen::RowMajor>>(values.data(), rows, values.size()/rows);
+    return Map<const Matrix<typename M::Scalar, M::RowsAtCompileTime, M::ColsAtCompileTime, RowMajor>>(values.data(), rows, values.size()/rows);
 }
 
 #define assertm(exp, msg) assert(((void)msg, exp));

@@ -11,14 +11,14 @@
 #include "estimators.hpp"
 #include "../utils/utils.hpp"
 
-estimator_result shrinkage_estimation(MatrixXd x){
+Estimator::Result Estimator::shrinkage(MatrixXd x){
 
     const int N = x.rows();
     const int T = x.cols();
 
-    Vector2d mu_no_par = mean(x);
+    Vector2d mu_no_par = Utils::mean(x);
     
-    MatrixXd sigma_no_par = covariance(x);
+    MatrixXd sigma_no_par = Utils::covariance(x);
 
     MatrixXd b = MatrixXd::Zero(N, 1);
 

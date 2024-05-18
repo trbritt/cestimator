@@ -17,10 +17,13 @@
 #include <tuple>
 #include <iostream>
 
-using namespace Eigen;
 
-MatrixXd covariance(MatrixXd x);
+namespace Utils {
+    using namespace Eigen;
 
-Vector2d mean(MatrixXd x);
+    MatrixXd covariance(MatrixXd x);
 
-VectorXd outlier_cutoff(VectorXd d, double d0);
+    Vector2d mean(MatrixXd x);
+
+    VectorXd outlier_cutoff(VectorXd d, double d0);
+}
