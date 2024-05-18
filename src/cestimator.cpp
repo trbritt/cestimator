@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
     Vector2d mu_shr = std::get<0>(res2);
     MatrixXd sigma_shr = std::get<1>(res2);
 
+    // auto res3 = hubert_M(X);
+
     std::cout << mu_nonpar << " "  << mu_shr << std::endl;
     std::cout << sigma_nonpar << " "  << sigma_shr << std::endl;
 
