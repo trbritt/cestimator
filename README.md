@@ -9,6 +9,12 @@ The types of estimation that are covered are (i) non-parametric estimation (the 
 
 Details on these estimators can be found in the [docs](https://github.com/trbritt/cestimator/tree/master/docs).
 
+## Output
+
+The output is simply formatted as text to stdout for now.
+
+![](./examples/US_SwapRates.png)
+
 ## Compilation
 
 To build the program requires only the `Eigen3` library as a prerequisite. Other than that, just run `make` and you'll be on your way. All object files and the executable will be created in the `./bin` directory. 
