@@ -60,7 +60,7 @@ void pprint(Estimator::Result res, std::string label){
     Vector2d mu = std::get<0>(res);
     MatrixXd sigma = std::get<1>(res);
 
-    std::cout << Utils::Colors::OKCYAN << label << "\t\t" << "μ" << "\t\t" << "Σ" << Utils::Colors::ENDC << std::endl;
+    std::cout << Utils::colors::OKCYAN << label << "\t\t" << "μ" << "\t\t" << "Σ" << Utils::colors::ENDC << std::endl;
     std::cout << "\t\t" << mu(0) << "\t" << sigma(0,0) << " " << sigma(0,1) << std::endl;
     std::cout << "\t\t" << mu(1) << "\t" << sigma(1,0) << " " << sigma(1,1) << "\n" << std::endl;
 

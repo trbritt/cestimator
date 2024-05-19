@@ -24,5 +24,7 @@ namespace Estimator{
 
     Result shrinkage(MatrixXd x);
 
+    Result maximum_likelihood(MatrixXd x);
+
     Result robust(MatrixXd x);
 }

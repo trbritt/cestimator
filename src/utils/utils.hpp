@@ -13,9 +13,12 @@
 
 #include <vector>
 #include <cmath>
+#include <algorithm>
 #include <Eigen/Dense>
 #include <tuple>
 #include <iostream>
+#include <iomanip>
+#include <iterator>
 #include <chrono>
 
 namespace Utils {
@@ -35,7 +38,7 @@ namespace Utils {
 
     std::string word_wrap(std::string text, unsigned per_line);
 
-    class Colors {
+    class colors {
     public:
         static const std::string HEADER;
         static const std::string OKBLUE;
@@ -59,5 +62,19 @@ class Utils::Timer {
     private:
         Clock::time_point epoch;
         Clock::duration telapsed;
-    };
+};
+
+//pretty print vector
+template<typename T>
+std::ostream & operator<<(std::ostream & os, std::vector<T> vec)
+{
+    os<<"{";
+    if(vec.size()!=0)
+    {
+        std::copy(vec.begin(), vec.end()-1, std::ostream_iterator<T>(os, " "));
+        os<<vec.back();
+    }
+    os<<"}";
+    return os;
+}
 

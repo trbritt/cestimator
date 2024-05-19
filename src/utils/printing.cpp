@@ -19,19 +19,7 @@ std::string getFormattedTime(const std::tm &time_struct, const std::string &form
   return ss.str();
 }
 
-//pretty print vector
-template<typename T>
-std::ostream & operator<<(std::ostream & os, std::vector<T> vec)
-{
-    os<<"{";
-    if(vec.size()!=0)
-    {
-        std::copy(vec.begin(), vec.end()-1, std::ostream_iterator<T>(os, " "));
-        os<<vec.back();
-    }
-    os<<"}";
-    return os;
-}
+
 
 std::string Utils::word_wrap(std::string text, unsigned per_line)
 {
@@ -76,12 +64,12 @@ void Utils::banner(std::string fname, int dim1, int dim2) {
     std::tm local_time = *std::localtime(&now_time_t);
 
     std::string header = "";
-    header += Utils::Colors::HEADER + "###################################################################\n";
+    header += Utils::colors::HEADER + "###################################################################\n";
     header += "# Cestimator v0.1\n";
     header += "# Running on " + fname + "\n";
     header += "# Analysing columns" + std::to_string(dim1) + " and " + std::to_string(dim2) + "\n";
     header += "# Starting on " + getFormattedTime(local_time, "%Y-%m-%d %H:%M:%S") + "\n";
-    header += "###################################################################" + Utils::Colors::ENDC + "\n";
+    header += "###################################################################" + Utils::colors::ENDC + "\n";
 
     std::cout << header << std::endl;
 
@@ -104,9 +92,9 @@ void Utils::goodbye(std::vector<Utils::Timer> timers){
     // Convert time_t to a local time representation (struct tm)
     std::tm local_time = *std::localtime(&now_time_t);
 
-    std::cout << Utils::Colors::OKGREEN << "###################################################################" << std::endl;
+    std::cout << Utils::colors::OKGREEN << "###################################################################" << std::endl;
     std::cout << "# Cleanly exiting; ended on " << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S") << " ... Goodbye." << std::endl;
-    std::cout << "###################################################################" << Utils::Colors::ENDC << std::endl;
+    std::cout << "###################################################################" << Utils::colors::ENDC << std::endl;
 
 }
 
