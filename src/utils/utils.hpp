@@ -21,38 +21,40 @@
 #include <iterator>
 #include <chrono>
 
-namespace Utils {
-    using namespace Eigen;
+namespace Cestimator{
+    namespace Utils {
+        using namespace Eigen;
 
-    class Timer;
+        class Timer;
 
-    MatrixXd covariance(MatrixXd x);
+        MatrixXd covariance(MatrixXd x);
 
-    VectorXd mean(MatrixXd x);
+        VectorXd mean(MatrixXd x);
 
-    VectorXd outlier_cutoff(VectorXd d, double d0);
+        VectorXd outlier_cutoff(VectorXd d, double d0);
 
-    void banner(std::string fname);
+        void banner(std::string fname);
 
-    void goodbye(std::vector<Timer> timers);
+        void goodbye(std::vector<Timer> timers);
 
-    std::string word_wrap(std::string text, unsigned per_line);
+        std::string word_wrap(std::string text, unsigned per_line);
 
-    class colors {
-    public:
-        static const std::string HEADER;
-        static const std::string OKBLUE;
-        static const std::string OKCYAN;
-        static const std::string OKGREEN;
-        static const std::string WARNING;
-        static const std::string FAIL;
-        static const std::string ENDC;
-        static const std::string BOLD;
-        static const std::string UNDERLINE;
-    };
+        class colors {
+        public:
+            static const std::string HEADER;
+            static const std::string OKBLUE;
+            static const std::string OKCYAN;
+            static const std::string OKGREEN;
+            static const std::string WARNING;
+            static const std::string FAIL;
+            static const std::string ENDC;
+            static const std::string BOLD;
+            static const std::string UNDERLINE;
+        };
+    }
 }
 
-class Utils::Timer {
+class Cestimator::Utils::Timer {
     public:
         typedef std::chrono::high_resolution_clock Clock;
         std::string name;

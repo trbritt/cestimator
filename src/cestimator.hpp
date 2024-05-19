@@ -54,7 +54,7 @@ M load_csv (const std::string & path) {
 
 #define assertm(exp, msg) assert(((void)msg, exp));
 
-void pprint(Estimator::Result res, std::string label){
+void pprint(Cestimator::Result res, std::string label){
 
     size_t num_spaces = std::max(0, static_cast<int>(15-label.length()));
     std::string padding(num_spaces, ' ');
@@ -63,7 +63,7 @@ void pprint(Estimator::Result res, std::string label){
     MatrixXd sigma = std::get<1>(res);
 
     int ndims = mu.size();
-    std::cout << Utils::colors::OKCYAN << label + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Utils::colors::ENDC << std::endl;
+    std::cout << Cestimator::Utils::colors::OKCYAN << label + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
 
     for (int i=0; i<ndims; ++i){
         std::cout << "\t\t" <<  mu(i) << "\t";

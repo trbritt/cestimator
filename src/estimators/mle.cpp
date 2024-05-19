@@ -68,7 +68,7 @@ std::vector<double> matrix2vector(MatrixXd x){
     return data;
 }
 
-Estimator::Result Estimator::maximum_likelihood(MatrixXd x){
+Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
 
     double error = 1e6;
     const int N = x.rows();
@@ -89,7 +89,7 @@ Estimator::Result Estimator::maximum_likelihood(MatrixXd x){
     const int nus[6] = {1, 2, 4, 7, 12, 20};
 
     std::vector<double> LL;
-    std::vector<Estimator::Result> res;
+    std::vector<Cestimator::Result> res;
     VectorXd mu_old;
     MatrixXd sigma_old;
     MatrixXd inv_sigma;
@@ -134,6 +134,6 @@ Estimator::Result Estimator::maximum_likelihood(MatrixXd x){
     std::vector<double>::iterator result = std::max_element(LL.begin(), LL.end());
     int argmaxVal = std::distance(LL.begin(), result);
     int nu = nus[argmaxVal];
-    Estimator::Result retval = res[argmaxVal];
+    Cestimator::Result retval = res[argmaxVal];
     return std::make_tuple(std::get<0>(retval), std::get<1>(retval) * nu / (nu - 2));
 }

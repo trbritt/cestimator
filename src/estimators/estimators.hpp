@@ -16,7 +16,7 @@
 
 using namespace Eigen;
 
-namespace Estimator{
+namespace Cestimator{
 
     typedef std::tuple<VectorXd, MatrixXd> Result;
 

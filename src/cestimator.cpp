@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
     } 
     std::string fname = std::string(argv[1]);
 
-    Utils::banner(fname);
-    std::vector<Utils::Timer> timers(5);
+    Cestimator::Utils::banner(fname);
+    std::vector<Cestimator::Utils::Timer> timers(5);
     timers[0].name = "loading";
     timers[1].name = "nonparametric";
     timers[2].name = "shrinkage";
@@ -37,23 +37,23 @@ int main(int argc, char *argv[]) {
     timers[0].stop();
 
     timers[1].start();
-    pprint(Estimator::non_parametric(X), timers[1].name);
+    pprint(Cestimator::non_parametric(X), timers[1].name);
     timers[1].stop();
 
     timers[2].start();
-    pprint(Estimator::shrinkage(X), timers[2].name);
+    pprint(Cestimator::shrinkage(X), timers[2].name);
 
     timers[2].stop();
 
     timers[3].start();
-    pprint(Estimator::maximum_likelihood(X), timers[3].name);
+    pprint(Cestimator::maximum_likelihood(X), timers[3].name);
     timers[3].stop();
 
     timers[4].start();
-    pprint(Estimator::robust(X), timers[4].name);
+    pprint(Cestimator::robust(X), timers[4].name);
     timers[4].stop();
 
-    Utils::goodbye(timers);
+    Cestimator::Utils::goodbye(timers);
 
     return 0;
 }
