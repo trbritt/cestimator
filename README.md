@@ -9,11 +9,6 @@ The types of estimation that are covered are (i) non-parametric estimation (the 
 
 Details on these estimators can be found in the [docs](https://github.com/trbritt/cestimator/tree/master/docs).
 
-## Output
-
-The output is simply formatted as text to stdout for now.
-
-![](./examples/US_SwapRates.png)
 
 ## Compilation
 
@@ -21,14 +16,19 @@ To build the program requires only the `Eigen3` library as a prerequisite. Other
 
 ## Usage
 
-The programme as built is designed to take in a CSV file, where a column is the time history of the variable of interest. The CSV should have multiple columns corresponding to the quantities the user believes to be codistributed. In this case, the programme can be run by then specifying the columns of the CSV which the user wishes to analyse:
+The programme as built is designed to take in a CSV file, where a column is the time history of the variable of interest. The CSV should have multiple columns corresponding to the quantities the user believes to be codistributed. In this case, the programme will analyse the $N$-dimensional distribution, where $N$ is the number of columns:
 
 ```bash
-./bin/cestimator.x <data_file.csv> col1 col2
+./bin/cestimator.x <data_file.csv> 
 ```
 
 The programme is geared at identifying statistically invariant quantities, so it considers the linear difference (linear returns in the case of market invariants) and determines the distribution of those quantites.
 
+## Output
+
+The output is simply formatted as text to stdout for now.
+
+![](./examples/US_SwapRates.png)
 
 ## License
 
