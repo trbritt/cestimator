@@ -1,7 +1,7 @@
 CXX=g++
 RM=rm -f
 CPPFLAGS=-O3 -Wall -std=c++17 -march=native -fno-math-errno
-LDFLAGS=-lm -lz
+LDFLAGS=-lm -lz -lmgl -lmgl-fltk
 
 MODULES   := utils estimators
 SRC_DIR   := $(addprefix ./src/,$(MODULES))

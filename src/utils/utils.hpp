@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <iterator>
 #include <chrono>
+#include <mgl2/fltk.h>
 
 namespace Cestimator{
     namespace Utils {
@@ -51,6 +52,10 @@ namespace Cestimator{
             static const std::string BOLD;
             static const std::string UNDERLINE;
         };
+
+        namespace Visualizers {
+            int scatter3d(mglGraph *gr, MatrixXd arr);
+        }
     }
 }
 

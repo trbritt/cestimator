@@ -11,6 +11,8 @@
 */
 #include "cestimator.hpp"
 
+MatrixXd X, Y; // put in global name space so dont have to be captured by lambdas
+
 int main(int argc, char *argv[]) {
 
     if ( argc!=2 ) {
@@ -30,10 +32,10 @@ int main(int argc, char *argv[]) {
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
-    MatrixXd Y = data(all, all);
+    Y = data(all, all);
     Y.transposeInPlace();
 
-    MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
+    X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
 
     timers[1].start();
@@ -53,7 +55,9 @@ int main(int argc, char *argv[]) {
     pprint(Cestimator::robust(X), timers[4].name);
     timers[4].stop();
 
+    
+    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter3d(a, X);}, "DataScatter");
+    int success = gr.Run();
     Cestimator::Utils::goodbye(timers);
-
     return 0;
 }
