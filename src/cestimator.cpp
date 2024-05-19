@@ -55,9 +55,11 @@ int main(int argc, char *argv[]) {
     pprint(Cestimator::robust(X), timers[4].name);
     timers[4].stop();
 
-    
-    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter2d(a, X, 0,2);}, "DataScatter");
+    #ifdef __VISUALIZER
+    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter2d(a, X, 0, 2);}, "DataScatter");
     int success = gr.Run();
+    #endif
+
     Cestimator::Utils::goodbye(timers);
     return 0;
 }

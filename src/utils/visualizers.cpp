@@ -1,5 +1,6 @@
 #include "utils.hpp"
 
+#ifdef __VISUALIZER
 using namespace Eigen;
 
 int Cestimator::Utils::Visualizers::scatter3d(mglGraph *gr, MatrixXd arr){
@@ -35,3 +36,4 @@ int Cestimator::Utils::Visualizers::scatter2d(mglGraph *gr, MatrixXd arr, int di
     
     return 0;
 }
+#endif

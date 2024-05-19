@@ -52,11 +52,12 @@ namespace Cestimator{
             static const std::string BOLD;
             static const std::string UNDERLINE;
         };
-
+        #ifdef __VISUALIZER
         namespace Visualizers {
             int scatter3d(mglGraph *gr, MatrixXd arr);
             int scatter2d(mglGraph *gr, MatrixXd arr, int dim1, int dim2);
         }
+        #endif
     }
 }
 
