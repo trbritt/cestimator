@@ -18,10 +18,8 @@ int main(int argc, char *argv[]) {
         return 1;
     } 
     std::string fname = std::string(argv[1]);
-    int dim1 = std::stoi(argv[2]);
-    int dim2 = std::stoi(argv[3]);
 
-    Utils::banner(fname, dim1, dim2);
+    Utils::banner(fname);
     std::vector<Utils::Timer> timers(5);
     timers[0].name = "loading";
     timers[1].name = "nonparametric";
@@ -32,8 +30,7 @@ int main(int argc, char *argv[]) {
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
-    // std::cout << data(all, last) << std::endl;
-    MatrixXd Y = data(all, {dim1,dim2});
+    MatrixXd Y = data(all, all);
     Y.transposeInPlace();
 
     MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));

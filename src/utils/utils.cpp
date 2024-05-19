@@ -27,7 +27,7 @@ namespace Utils {
     const std::string colors::BOLD = "\033[1m";
     const std::string colors::UNDERLINE = "\033[4m";
 
-    Vector2d mean(MatrixXd x){
+    VectorXd mean(MatrixXd x){
         return x.rowwise().mean();
     }
 

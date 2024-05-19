@@ -16,7 +16,7 @@ Estimator::Result Estimator::shrinkage(MatrixXd x){
     const int N = x.rows();
     const int T = x.cols();
 
-    Vector2d mu_no_par = Utils::mean(x);
+    VectorXd mu_no_par = Utils::mean(x);
     
     MatrixXd sigma_no_par = Utils::covariance(x);
 

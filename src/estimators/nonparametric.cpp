@@ -13,7 +13,7 @@
 #include "../utils/utils.hpp"
 
 Estimator::Result Estimator::non_parametric(MatrixXd x){
-    Vector2d mu = Utils::mean(x);
+    VectorXd mu = Utils::mean(x);
     
     MatrixXd sigma = Utils::covariance(x);
 

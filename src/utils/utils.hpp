@@ -28,11 +28,11 @@ namespace Utils {
 
     MatrixXd covariance(MatrixXd x);
 
-    Vector2d mean(MatrixXd x);
+    VectorXd mean(MatrixXd x);
 
     VectorXd outlier_cutoff(VectorXd d, double d0);
 
-    void banner(std::string fname, int dim1, int dim2);
+    void banner(std::string fname);
 
     void goodbye(std::vector<Timer> timers);
 

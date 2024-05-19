@@ -58,7 +58,7 @@ std::string Utils::word_wrap(std::string text, unsigned per_line)
     return text;
 }
 
-void Utils::banner(std::string fname, int dim1, int dim2) {
+void Utils::banner(std::string fname) {
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
     std::tm local_time = *std::localtime(&now_time_t);
@@ -67,7 +67,7 @@ void Utils::banner(std::string fname, int dim1, int dim2) {
     header += Utils::colors::HEADER + "###################################################################\n";
     header += "# Cestimator v0.1\n";
     header += "# Running on " + fname + "\n";
-    header += "# Analysing columns" + std::to_string(dim1) + " and " + std::to_string(dim2) + "\n";
+    header += "# Analysing all columns\n";
     header += "# Starting on " + getFormattedTime(local_time, "%Y-%m-%d %H:%M:%S") + "\n";
     header += "###################################################################" + Utils::colors::ENDC + "\n";
 

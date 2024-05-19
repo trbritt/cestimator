@@ -18,7 +18,7 @@ using namespace Eigen;
 
 namespace Estimator{
 
-    typedef std::tuple<Vector2d, MatrixXd> Result;
+    typedef std::tuple<VectorXd, MatrixXd> Result;
 
     Result non_parametric(MatrixXd x);
 
