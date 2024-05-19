@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
 
-    if ( argc!=4 ) {
+    if ( argc!=2 ) {
         std::cerr << "Incorrect number of command line arguments passed to programme. Ending" << std::endl;
         return 1;
     } 
