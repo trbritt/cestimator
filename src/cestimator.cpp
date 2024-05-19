@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     timers[1].name = "nonparametric";
     timers[2].name = "shrinkage";
     timers[3].name = "MLE";
-    timers[4].name = "robustttt";
+    timers[4].name = "robust";
 
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);

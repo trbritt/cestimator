@@ -99,34 +99,28 @@ Estimator::Result Estimator::maximum_likelihood(MatrixXd x){
     MatrixXd tmp;
 
     for (int idn=0; idn<6; ++idn){
-        const int nu = nus[idn];
+        double nu = static_cast<double>(nus[idn]);
         while (error > tolerance) {
             mu_old = mu;
             sigma_old = sigma;
 
             W = w * VectorXd::Ones(N).transpose();
-            // std::cout << W.rows() << " " << W.cols() << std::endl;
-            // std::cout << x.rows() << " " << x.cols() << std::endl;
-            mu = (x * W).colwise().sum() / w.sum();
-
+            mu = x.transpose().cwiseProduct(W).colwise().sum() / w.sum();
             x_c = x - mu * VectorXd::Ones(T).transpose();
             sigma = W.transpose().cwiseProduct(x_c) * x_c.transpose() / T;
 
             inv_sigma = sigma.inverse();
             ma2 = (x_c.transpose() * inv_sigma * x_c).rowwise().sum();
-            // std::cout << ma2.rows() << " " << ma2.cols() << std::endl;
             for (size_t i=0; i<w.size();  ++i){
                 w(i) = (nu+N) / (nu + ma2(i));
             }
             tmp = (sigma-sigma_old)*(sigma-sigma_old) / N;
             tmp += (mu-mu_old)*(mu-mu_old).transpose()/ N;
             error = tmp.trace();
-
-            res.push_back(std::make_tuple(mu, sigma));
         }
         // now that we've achieved the mu and sigma for
         // this given degree of freedom, compute its LL
-        double norm = -N/2 * log(nu*M_PI) + log(gamma((nu+N)/2)) - log(gamma(nu/2)) - 0.5*log(sigma.determinant());
+        double norm = -N/2 * log(nu*M_PI) + std::lgamma((nu+N)/2) - std::lgamma(nu/2) - 0.5*log(sigma.determinant());
 
         double ll=0;
         for (int t=0; t<T; ++t){
@@ -134,18 +128,12 @@ Estimator::Result Estimator::maximum_likelihood(MatrixXd x){
             double ma2 = (centered.transpose() * inv_sigma * centered)(0);
             ll += norm - (nu+N)/2 * log(1+ma2/nu);
         }
+        res.push_back(std::make_tuple(mu, sigma));
         LL.push_back(ll);
     }
     std::vector<double>::iterator result = std::max_element(LL.begin(), LL.end());
     int argmaxVal = std::distance(LL.begin(), result);
     int nu = nus[argmaxVal];
-
-    std::cout << LL << std::endl;
-
     Estimator::Result retval = res[argmaxVal];
-    mu = std::get<0>(retval);
-    sigma = std::get<1>(retval);
-    sigma *= nu / (nu - 2);
-
-    return std::make_tuple(mu, sigma);
+    return std::make_tuple(std::get<0>(retval), std::get<1>(retval) * nu / (nu - 2));
 }

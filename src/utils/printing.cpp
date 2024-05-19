@@ -77,7 +77,7 @@ void Utils::banner(std::string fname, int dim1, int dim2) {
 
 void Utils::goodbye(std::vector<Utils::Timer> timers){
     // print timing information
-    std::cout << std::endl << Utils::Colors::UNDERLINE << "Timings\n" << Utils::Colors::ENDC << std::endl;
+    std::cout << std::endl << Utils::colors::UNDERLINE << "Timings\n" << Utils::colors::ENDC << std::endl;
 
     for (int i = 0; i < timers.size(); i++)
     {
