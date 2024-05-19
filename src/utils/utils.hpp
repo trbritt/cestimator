@@ -55,6 +55,7 @@ namespace Cestimator{
 
         namespace Visualizers {
             int scatter3d(mglGraph *gr, MatrixXd arr);
+            int scatter2d(mglGraph *gr, MatrixXd arr, int dim1, int dim2);
         }
     }
 }
