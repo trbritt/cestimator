@@ -1,4 +1,5 @@
 # Cestimator
+![](./cestimator.png)
 
 This is a first pass at my implementation of estimators of distributions. This will highlight a few different types of estimation that encompass a large class of realistic distribution, specifically elliptically distributed realisations of a random variable.
 
