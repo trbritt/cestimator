@@ -22,7 +22,12 @@ AC_ARG_WITH(visualization,
    [with_mgl=0])
 
 
+
 AC_LANG_PUSH(C++)
+AC_CHECK_HEADERS([eigen3/Eigen/Dense],
+        [has_eigen=yes; break;])
+AS_IF([test "x$has_eigen" != "xyes"],
+   [AC_MSG_ERROR([Unable to find the Eigen headers])])
 
 if test "$with_mgl" -eq 1 ; then
     dflags="$dflags -D__VISUALIZER"
