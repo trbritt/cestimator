@@ -39,20 +39,35 @@ int main(int argc, char *argv[]) {
     timers[0].stop();
 
     timers[1].start();
-    pprint(Cestimator::non_parametric(X), timers[1].name);
+    Cestimator::non_parametric np;
+    np.name = timers[1].name;
+    np.set_data(X);
+    np.run();
+    np.print();
     timers[1].stop();
 
     timers[2].start();
-    pprint(Cestimator::shrinkage(X), timers[2].name);
-
+    Cestimator::shrinkage shr;
+    shr.name = timers[2].name;
+    shr.set_data(X);
+    shr.run();
+    shr.print();
     timers[2].stop();
 
     timers[3].start();
-    pprint(Cestimator::maximum_likelihood(X), timers[3].name);
+    Cestimator::maximum_likelihood mle;
+    mle.name = timers[3].name;
+    mle.set_data(X);
+    mle.run();
+    mle.print();
     timers[3].stop();
 
     timers[4].start();
-    pprint(Cestimator::robust(X), timers[4].name);
+    Cestimator::robust rb;
+    rb.name = timers[4].name;
+    rb.set_data(X);
+    rb.run();
+    rb.print();
     timers[4].stop();
 
     #ifdef __VISUALIZER

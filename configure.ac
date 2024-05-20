@@ -3,6 +3,7 @@
 # email: hello@tbritt.xyz
 AC_INIT([cestimator], [0.1], [hello@tbritt.xyz], [cestimator])
 AC_PREREQ(2.64)
+AC_CONFIG_AUX_DIR([build_aux])
 AM_INIT_AUTOMAKE([foreign])
 
 # check system type (no cross-compilation for now)

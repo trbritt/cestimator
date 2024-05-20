@@ -8,10 +8,7 @@
     this is the main code for the maximum likelihood estimator
 
 */
-#include <vector>
-#include <iterator>
 #include "estimators.hpp"
-#include "../utils/utils.hpp"
 
 template<typename T>
 static inline double lerp(T v0, T v1, T t)
@@ -68,20 +65,19 @@ std::vector<double> matrix2vector(MatrixXd x){
     return data;
 }
 
-Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
+int Cestimator::maximum_likelihood::run(){
 
     double error = 1e6;
-    const int N = x.rows();
-    const int T = x.cols();
+
 
     VectorXd w = VectorXd::Ones(T);
     VectorXd Zeros = VectorXd::Zero(N);
 
-    VectorXd mu = Zeros;
+    mu = Zeros;
 
-    MatrixXd sigma = MatrixXd::Zero(N,N);
+    sigma = MatrixXd::Zero(N,N);
 
-    std::vector<double> flattened = matrix2vector(x);
+    std::vector<double> flattened = matrix2vector(data);
     std::vector<double> quant = quantile<double>(flattened, {0.75, 0.25});
 
     const double tolerance = abs(0.01*(quant[1]-quant[0]));
@@ -105,8 +101,8 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
             sigma_old = sigma;
 
             W = w * VectorXd::Ones(N).transpose();
-            mu = x.transpose().cwiseProduct(W).colwise().sum() / w.sum();
-            x_c = x - mu * VectorXd::Ones(T).transpose();
+            mu = data.transpose().cwiseProduct(W).colwise().sum() / w.sum();
+            x_c = data - mu * VectorXd::Ones(T).transpose();
             sigma = W.transpose().cwiseProduct(x_c) * x_c.transpose() / T;
 
             inv_sigma = sigma.inverse();
@@ -124,7 +120,7 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
 
         double ll=0;
         for (int t=0; t<T; ++t){
-            MatrixXd centered = x(all, t) - mu;
+            MatrixXd centered = data(all, t) - mu;
             double ma2 = (centered.transpose() * inv_sigma * centered)(0);
             ll += norm - (nu+N)/2 * log(1+ma2/nu);
         }
@@ -135,5 +131,8 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
     int argmaxVal = std::distance(LL.begin(), result);
     int nu = nus[argmaxVal];
     Cestimator::Result retval = res[argmaxVal];
-    return std::make_tuple(std::get<0>(retval), std::get<1>(retval) * nu / (nu - 2));
+    mu = std::get<0>(retval);
+    sigma = std::get<1>(retval);
+    sigma *= nu / (nu-2);
+    return 0;
 }

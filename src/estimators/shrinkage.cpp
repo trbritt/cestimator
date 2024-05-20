@@ -9,16 +9,8 @@
 
 */
 #include "estimators.hpp"
-#include "../utils/utils.hpp"
 
-Cestimator::Result Cestimator::shrinkage(MatrixXd x){
-
-    const int N = x.rows();
-    const int T = x.cols();
-
-    VectorXd mu_no_par = Cestimator::Utils::mean(x);
-    
-    MatrixXd sigma_no_par = Cestimator::Utils::covariance(x);
+int Cestimator::shrinkage::run(){
 
     MatrixXd b = MatrixXd::Zero(N, 1);
 
@@ -29,7 +21,7 @@ Cestimator::Result Cestimator::shrinkage(MatrixXd x){
     double a = (1/T) * (lambda_hat.sum() - 2*lambda_hat.maxCoeff()) / (mu_no_par.transpose() * mu_no_par);
     a = std::fmax(0.0, std::fmin(a, 1.0));
 
-    VectorXd mu_shr = (1-a) * mu_no_par + a * b;
+    mu = (1-a) * mu_no_par + a * b;
 
     MatrixXd C = lambda_hat.mean() * MatrixXd::Identity(N,N);
 
@@ -37,7 +29,7 @@ Cestimator::Result Cestimator::shrinkage(MatrixXd x){
     double num = 0;
     MatrixXd tmp;
     for (int t = 0; t< T; ++t){
-        tmp = x(all, t) * x(all,t).transpose() - sigma_no_par;
+        tmp = data(all, t) * data(all,t).transpose() - sigma_no_par;
         tmp *= tmp;
         num += (1/T) * tmp.trace(); 
     };
@@ -48,6 +40,6 @@ Cestimator::Result Cestimator::shrinkage(MatrixXd x){
     a = (1/T) * num / denom;
     a = std::fmax(0.0, std::fmin(a, 1.0));
 
-    MatrixXd sigma_shr = (1-a) * sigma_no_par + a*C;
-    return std::make_tuple(mu_shr, sigma_shr);
+    sigma = (1-a) * sigma_no_par + a*C;
+    return 0;
 }
