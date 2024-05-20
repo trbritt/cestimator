@@ -21,19 +21,22 @@ using namespace Eigen;
 namespace Cestimator{
 
     class Estimator {
-        public:
+            
+        protected:
+            MatrixXd data;
+            VectorXd mu_no_par;
+            MatrixXd sigma_no_par;
             int N, T;
 
-            MatrixXd data;
-            VectorXd mu_no_par, mu;
-            MatrixXd sigma_no_par, sigma;
+        public:
+
+            VectorXd mu;
+            MatrixXd sigma;
 
             std::string name;
-            Estimator(MatrixXd arr){
-                set_data(arr);
-            };
             Estimator(){};
             void set_data(MatrixXd arr){
+
                 data = arr;
 
                 N = data.rows();
@@ -58,27 +61,28 @@ namespace Cestimator{
                 }
                 std::cout << "\n" << std::endl;
             };
+            virtual int run() = 0; //pure virtual initialization, no one can inheret unless they impl run
     };
 
     typedef std::tuple<VectorXd, MatrixXd> Result;
 
     class non_parametric: public Estimator{
         public:
-            int run();
+            int run() override; 
     };
 
     class shrinkage: public Estimator{
         public:
-            int run();
+            int run() override;
     };
 
     class maximum_likelihood: public Estimator{
         public:
-            int run();
+            int run() override;
     };
 
     class robust: public Estimator{
         public:
-            int run();
+            int run() override;
     };
 }

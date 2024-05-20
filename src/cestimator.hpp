@@ -22,7 +22,6 @@
 
 #include <Eigen/Dense>
 
-#include "utils/utils.hpp"
 #include "estimators/estimators.hpp"
 
 using namespace Eigen;
