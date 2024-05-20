@@ -1,7 +1,8 @@
 CXX=g++
 RM=rm -f
 CPPFLAGS=-O3 -Wall -std=c++17 -march=native -fno-math-errno
-LDFLAGS=-lm -lz
+LDFLAGS=-lm -lz @ldflags@
+DFLAGS=@dflags@
 
 MODULES   := utils estimators
 SRC_DIR   := $(addprefix ./src/,$(MODULES))
@@ -11,13 +12,13 @@ SRC_MAIN  := ./src/cestimator.cpp
 SRC	      := $(SRC_MAIN) $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp)) 
 OBJ_MAIN  := ./bin/cestimator.o
 OBJ	      := $(OBJ_MAIN) $(patsubst ./src/%.cpp,./bin/%.o,$(SRC)) 
-INCLUDES  := $(addprefix -I,$(SRC_DIR)) -I/usr/include/eigen3
+INCL      := $(addprefix -I,$(SRC_DIR)) -I/usr/include/eigen3
 
 vpath %.cpp $(SRC_DIR)
 
 define make-goal
 $1/%.o: %.cpp
-	$(CXX) $(CPPFLAGS) $(INCLUDES) -c $$< -o $$@
+	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -c $$< -o $$@
 endef
 
 .PHONY: all checkdirs clean
@@ -38,4 +39,4 @@ clean:
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
 
 ./bin/cestimator.o: $(SRC_MAIN)
-	$(CXX) $(CPPFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -c $< -o $@

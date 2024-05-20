@@ -12,7 +12,12 @@ Details on these estimators can be found in the [docs](https://github.com/trbrit
 
 ## Compilation
 
-To build the program requires only the `Eigen3` library as a prerequisite. Other than that, just run `make` and you'll be on your way. All object files and the executable will be created in the `./bin` directory. 
+To build the program requires only the `Eigen3` library as a prerequisite. The checks for these headers are done by the `configure` script, generated using `autoconf`. In order to compile the project, start by running `./configure --help` to see the possible build options. Notably, there is a flag `--with-visualization` that will additionally link the project against the MathGL suite, and provide visualization of the resulting analysis (in progress). Simply run:
+
+```bash
+./configure <options>
+```
+to generate a `Makefile`. Then run `make` to actually compile the project. All object files and the executable will be created in the `./bin` directory. 
 
 ## Usage
 

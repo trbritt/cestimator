@@ -4,15 +4,15 @@
 #include <iostream>
 #include "utils.hpp"
 
-void Utils::Timer::start() {
-    this->epoch = Utils::Timer::Clock::now();
+void Cestimator::Utils::Timer::start() {
+    this->epoch = Cestimator::Utils::Timer::Clock::now();
 }
 
-void Utils::Timer::stop() {
-    this->telapsed = Utils::Timer::Clock::now() - this->epoch;
+void Cestimator::Utils::Timer::stop() {
+    this->telapsed = Cestimator::Utils::Timer::Clock::now() - this->epoch;
 }
 
-void Utils::Timer::print() {
+void Cestimator::Utils::Timer::print() {
     size_t num_spaces = std::max(0, static_cast<int>(30-this->name.length()));
     std::string padding(num_spaces, ' ');
 

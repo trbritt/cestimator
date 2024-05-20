@@ -11,6 +11,8 @@
 */
 #include "cestimator.hpp"
 
+MatrixXd X, Y; // put in global name space so dont have to be captured by lambdas
+
 int main(int argc, char *argv[]) {
 
     if ( argc!=2 ) {
@@ -19,8 +21,8 @@ int main(int argc, char *argv[]) {
     } 
     std::string fname = std::string(argv[1]);
 
-    Utils::banner(fname);
-    std::vector<Utils::Timer> timers(5);
+    Cestimator::Utils::banner(fname);
+    std::vector<Cestimator::Utils::Timer> timers(5);
     timers[0].name = "loading";
     timers[1].name = "nonparametric";
     timers[2].name = "shrinkage";
@@ -30,30 +32,34 @@ int main(int argc, char *argv[]) {
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
-    MatrixXd Y = data(all, all);
+    Y = data(all, all);
     Y.transposeInPlace();
 
-    MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
+    X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
 
     timers[1].start();
-    pprint(Estimator::non_parametric(X), timers[1].name);
+    pprint(Cestimator::non_parametric(X), timers[1].name);
     timers[1].stop();
 
     timers[2].start();
-    pprint(Estimator::shrinkage(X), timers[2].name);
+    pprint(Cestimator::shrinkage(X), timers[2].name);
 
     timers[2].stop();
 
     timers[3].start();
-    pprint(Estimator::maximum_likelihood(X), timers[3].name);
+    pprint(Cestimator::maximum_likelihood(X), timers[3].name);
     timers[3].stop();
 
     timers[4].start();
-    pprint(Estimator::robust(X), timers[4].name);
+    pprint(Cestimator::robust(X), timers[4].name);
     timers[4].stop();
 
-    Utils::goodbye(timers);
+    #ifdef __VISUALIZER
+    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter2d(a, X, 0, 2);}, "DataScatter");
+    int success = gr.Run();
+    #endif
 
+    Cestimator::Utils::goodbye(timers);
     return 0;
 }

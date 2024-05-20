@@ -11,7 +11,7 @@
 #include "estimators.hpp"
 #include "../utils/utils.hpp"
 
-Estimator::Result Estimator::robust(MatrixXd x){
+Cestimator::Result Cestimator::robust(MatrixXd x){
     const double tolerance = 1e-6;
     double error = 1e6;
 
@@ -56,7 +56,7 @@ Estimator::Result Estimator::robust(MatrixXd x){
             //below is an annoying typecast issue, the matrix products work out to a scalar value, but it is still of the type MatrixXd, so to actually get the value we take the (1,1) element explicitly, despite it being the only element            
             d(t) = sqrt((tmp2.transpose() * inv_sigma * tmp2)(0));
         }
-        w = Utils::outlier_cutoff(d, d0);
+        w = Cestimator::Utils::outlier_cutoff(d, d0);
         error = ((sigma-sigma_old)*(sigma-sigma_old) + (mu-mu_old) * (mu-mu_old).transpose()).trace();
     }
 
