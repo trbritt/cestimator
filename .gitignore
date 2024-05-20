@@ -1,3 +1,11 @@
 src/*.o
 bin
 **/cestimator
+*m4*
+config.*
+
+configure~
+missing
+install-sh
+Makefile
+Makefile.in
