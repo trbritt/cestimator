@@ -651,6 +651,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+ldflags
 dflags
 am__fastdepCXX_FALSE
 am__fastdepCXX_TRUE
@@ -2910,6 +2911,8 @@ case $build_os in *\ *) build_os=`echo "$build_os" | sed 's/ /-/g'`;; esac
 
 # Add all needed -D options to dflags
 dflags=""
+# Add libraries if visualization
+ldflags=""
 
 
 # Check whether --with-visualization was given.
@@ -3803,6 +3806,9 @@ fi
 
 if test "$with_mgl" -eq 1 ; then
     dflags="$dflags -D__VISUALIZER"
+    ldflags="$ldflags -lmgl -lmgl-fltk"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Building with visualization libraries" >&5
+printf "%s\n" "$as_me: Building with visualization libraries" >&6;}
 fi
 
 ac_ext=c
@@ -3810,6 +3816,7 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 
 

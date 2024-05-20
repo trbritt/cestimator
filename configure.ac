@@ -10,6 +10,8 @@ AC_CANONICAL_BUILD
 
 # Add all needed -D options to dflags
 dflags=""
+# Add libraries if visualization
+ldflags=""
 
 AC_ARG_WITH(visualization,
    [AS_HELP_STRING([--with-visualization],
@@ -31,11 +33,14 @@ AS_IF([test "x$has_eigen" != "xyes"],
 
 if test "$with_mgl" -eq 1 ; then
     dflags="$dflags -D__VISUALIZER"
+    ldflags="$ldflags -lmgl -lmgl-fltk"
+    AC_MSG_NOTICE([Building with visualization libraries])
 fi
 
 AC_LANG_POP(C++)
 
 AC_SUBST(dflags)
+AC_SUBST(ldflags)
 
 AC_CONFIG_FILES([Makefile])
 
