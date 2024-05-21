@@ -142,7 +142,7 @@ int Cestimator::maximum_likelihood::run(){
 }
 
 int Cestimator::GMM(MatrixXd X, int n_features){
-    const int iterations = 5000;
+    const int iterations = 50;
 
 
     int N = X.rows(); //number of dimensions
@@ -171,17 +171,16 @@ int Cestimator::GMM(MatrixXd X, int n_features){
             mu[c](j) = static_cast<double>(uni(rng));
             sigma[c](j, j) = 5.0;
         }
-        // std::cout << mu[c] << std::endl;
+        std::cout << mu[c] << std::endl;
         // std::cout << sigma[c] << std::endl;
     }
-
     //now, we define the mixing ratios of each source
     VectorXd pi = VectorXd::Ones(n_features) / n_features;
     double LL = 0;
     double LL_old = 0;
     for (int i=0; i<iterations; ++i){
         // std::cout << i << std::endl;
-        MatrixXd r_ic = MatrixXd::Zero(n_features, T); //prob that this observations belongs to this cluster
+        MatrixXd r_ci = MatrixXd::Zero(n_features, T); //prob that this observations belongs to this cluster
 
         //first up is the 'E' step
         //start with iterating over n_features
@@ -190,40 +189,43 @@ int Cestimator::GMM(MatrixXd X, int n_features){
             MatrixXd sigma_c = sigma[c]+regularization;
 
             MatrixXd inv_sigma_c = sigma[c].inverse();
-            double num, denom=0;
+            double num;
             for (int t=0; t<T; ++t){
                 VectorXd centered = X(all, t) - mu_c;
                 num = exp(-0.5*
                     centered.transpose() * inv_sigma_c * centered
                 ) * pi(c);
                 num /= sqrt(pow(2*M_PI, N)*pow(sigma_c.determinant(), 0.5));
-                r_ic(c, t) = num;
-                denom += num;
+                r_ci(c, t) = num;
             }
-            r_ic(c, all) /= denom;
         }
+        for (int t=0; t<T; ++t){            
+            r_ci(all, t) /= r_ci(all,t).sum();
+        }
+        // for (int t=0; t<T; ++t){
+        //     std::cout << r_ci(all, t) << std::endl;
+        // }
+        // std::cout << r_ci << std::endl;
         // now we begin with the M step
         //X is 2,500
         double m_c;
         for (int c=0; c<n_features; ++c){
-            m_c = r_ic(c, all).sum();
-            std::cout << m_c << std::endl;
+            m_c = r_ci(c, all).sum();
             VectorXd mu_c = VectorXd::Zero(N);
             MatrixXd sigma_c = MatrixXd::Zero(N,N);
 
-            for (int t=0; t<T; ++t){
-                mu_c += r_ic(c,t) * X(all, t).transpose();
-            }
-            mu_c /= m_c;
+            MatrixXd tmp = r_ci(c, all).colwise().replicate(X.rows());
+            mu_c = tmp.cwiseProduct(X).rowwise().sum() / m_c;
+            // std::cout << mu_c << std::endl;
             mu[c] = mu_c;
 
             for (int t=0; t<T; ++t){
                 MatrixXd tmp = (X(all,t) - mu_c);
-                sigma_c += r_ic(c,t) * tmp * tmp.transpose();
+                sigma_c += r_ci(c,t) * tmp * tmp.transpose();
             }
             sigma[c] = sigma_c + regularization;
 
-            pi(c) = m_c / r_ic.sum();
+            pi(c) = m_c / r_ci.sum();
 
         }
 
@@ -245,12 +247,12 @@ int Cestimator::GMM(MatrixXd X, int n_features){
             LL += num_c;
         }
         LL = log(LL);
-        if (abs(LL-LL_old) < 1e-8) {
+        if (abs(LL-LL_old) < 1e-4) {
             std::cout << "Converged!" << std::endl;
             break;
         } else {
             LL_old = LL;
-            std::cout << LL << std::endl;
+            // std::cout << LL << std::endl;
         }
     }
     
