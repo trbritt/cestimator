@@ -85,4 +85,6 @@ namespace Cestimator{
         public:
             int run() override;
     };
+
+    int GMM(MatrixXd arr, int n_features);
 }
