@@ -86,5 +86,18 @@ namespace Cestimator{
             int run() override;
     };
 
-    int GMM(MatrixXd arr, int n_features);
+    class GMM: public Estimator {
+        public:
+            int n_features, n_term=-1;
+            MatrixXd mu, regularization;
+            std::vector<MatrixXd> sigma;
+            void set_data(MatrixXd arr, int nf=3){
+                Estimator::set_data(arr);
+                n_features = nf;
+            }
+            int run() override;
+            VectorXd predict(VectorXd arr);
+            void print();
+    };
+        
 }

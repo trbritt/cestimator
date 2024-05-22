@@ -11,9 +11,6 @@
 #include "estimators.hpp"
 #include <random>
 
-std::random_device rd;     // Only used once to initialise (seed) engine
-std::mt19937 rng(rd());    // Random-number engine used (Mersenne-Twister in this case)
-
 template<typename T>
 static inline double lerp(T v0, T v1, T t)
 {
@@ -141,122 +138,121 @@ int Cestimator::maximum_likelihood::run(){
     return 0;
 }
 
-int Cestimator::GMM(MatrixXd X, int n_features){
-    const int iterations = 50;
+int Cestimator::GMM::run(){
+    const int iterations = 1000;
 
+    int N = data.rows(); //number of dimensions
+    int T = data.cols(); //number of observations
 
-    int N = X.rows(); //number of dimensions
-    int T = X.cols(); //number of observations
-    std::uniform_int_distribution<int> uni(
-        X(0,all).minCoeff(),
-        X(0,all).maxCoeff()
-    ); // Guaranteed unbiased
+    std::vector<double> LL;
+    double previous_LL = -std::numeric_limits<double>::infinity();
 
-    //because it is possible for a scatter matrix to become
-    //non-invertible if we find the wrong local min, we add
-    //regulatization to ensure smooth behaviour 
-    MatrixXd regularization = 1e-6 * MatrixXd::Identity(N,N);
-
-    //because we're in N-dims, and we have n_features number of
-    //sources, mu must be an N x n_features matrix.
-    std::vector<VectorXd> mu(n_features);
-    std::fill(mu.begin(), mu.end(), VectorXd::Zero(N));
-    //likewise, sigma must be n_features x N x N
-    //fill the scatter matrix of each feature with 
-    //an initial (uncorrelated) diagonal matrix
-    std::vector<MatrixXd> sigma(n_features);
-    std::fill(sigma.begin(), sigma.end(), MatrixXd::Zero(N, N));
-    for (int c=0; c<n_features; ++c){
-        for (int j=0; j<N; ++j){
-            mu[c](j) = static_cast<double>(uni(rng));
-            sigma[c](j, j) = 5.0;
-        }
-        std::cout << mu[c] << std::endl;
-        // std::cout << sigma[c] << std::endl;
-    }
-    //now, we define the mixing ratios of each source
+    mu = MatrixXd::Zero(n_features, N);
     VectorXd pi = VectorXd::Ones(n_features) / n_features;
-    double LL = 0;
-    double LL_old = 0;
-    for (int i=0; i<iterations; ++i){
-        // std::cout << i << std::endl;
-        MatrixXd r_ci = MatrixXd::Zero(n_features, T); //prob that this observations belongs to this cluster
 
-        //first up is the 'E' step
-        //start with iterating over n_features
-        for (int c=0; c<n_features; ++c){
-            VectorXd mu_c = mu[c];
-            MatrixXd sigma_c = sigma[c]+regularization;
+    sigma = std::vector<MatrixXd>(n_features, MatrixXd::Identity(N, N));
 
-            MatrixXd inv_sigma_c = sigma[c].inverse();
-            double num;
-            for (int t=0; t<T; ++t){
-                VectorXd centered = X(all, t) - mu_c;
-                num = exp(-0.5*
-                    centered.transpose() * inv_sigma_c * centered
-                ) * pi(c);
-                num /= sqrt(pow(2*M_PI, N)*pow(sigma_c.determinant(), 0.5));
-                r_ci(c, t) = num;
-            }
-        }
-        for (int t=0; t<T; ++t){            
-            r_ci(all, t) /= r_ci(all,t).sum();
-        }
-        // for (int t=0; t<T; ++t){
-        //     std::cout << r_ci(all, t) << std::endl;
-        // }
-        // std::cout << r_ci << std::endl;
-        // now we begin with the M step
-        //X is 2,500
-        double m_c;
-        for (int c=0; c<n_features; ++c){
-            m_c = r_ci(c, all).sum();
-            VectorXd mu_c = VectorXd::Zero(N);
-            MatrixXd sigma_c = MatrixXd::Zero(N,N);
+    regularization = 1e-6 * MatrixXd::Identity(N, N);
 
-            MatrixXd tmp = r_ci(c, all).colwise().replicate(X.rows());
-            mu_c = tmp.cwiseProduct(X).rowwise().sum() / m_c;
-            // std::cout << mu_c << std::endl;
-            mu[c] = mu_c;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, T - 1);
 
-            for (int t=0; t<T; ++t){
-                MatrixXd tmp = (X(all,t) - mu_c);
-                sigma_c += r_ci(c,t) * tmp * tmp.transpose();
-            }
-            sigma[c] = sigma_c + regularization;
-
-            pi(c) = m_c / r_ci.sum();
-
-        }
-
-        // now, compute LL for this iteration
-        for (int c=0; c<n_features; ++c){
-            VectorXd mu_c = mu[c];
-            MatrixXd sigma_c = sigma[c];
-
-            MatrixXd inv_sigma_c = sigma[c].inverse();
-            double num_t=0, num_c=0;
-            for (int t=0; t<T; ++t){
-                VectorXd centered = X(all, t) - mu_c;
-                num_t = exp(-0.5*
-                    centered.transpose() * inv_sigma_c * centered
-                ) * pi(c);
-                num_t /= sqrt(pow(2*M_PI, N)*pow(sigma_c.determinant(), 0.5));
-                num_c += num_t;
-            }
-            LL += num_c;
-        }
-        LL = log(LL);
-        if (abs(LL-LL_old) < 1e-4) {
-            std::cout << "Converged!" << std::endl;
-            break;
-        } else {
-            LL_old = LL;
-            // std::cout << LL << std::endl;
-        }
+    // Initialize mu
+    for (int i = 0; i < n_features; ++i) {
+        mu.row(i) = data.col(dis(gen));
     }
-    
-    std::cout << mu << std::endl;
-    // std::cout << sigma << std::endl;
+
+    // Initialize covariances
+    for (int i = 0; i < n_features; ++i) {
+        sigma[i] = 5 * MatrixXd::Identity(N, N);
+    }
+
+    for (int iter = 0; iter < iterations; ++iter) {
+        // E Step
+        MatrixXd r_ic = MatrixXd::Zero(T, n_features);
+        for (int c = 0; c < n_features; ++c) {
+            MatrixXd co = sigma[c] + regularization;
+            for (int i = 0; i < T; ++i) {
+                VectorXd diff = data.col(i) - mu.row(c).transpose();
+                double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
+                double denom = pow(2 * M_PI, N / 2.0) * sqrt(co.determinant());
+                r_ic(i, c) = pi(c) * exp(exponent) / denom;
+            }
+        }
+        for (int i = 0; i < T; ++i) {
+            r_ic.row(i) /= r_ic.row(i).sum();
+        }
+        // M Step
+        for (int c = 0; c < n_features; ++c) {
+            double m_c = r_ic.col(c).sum();
+            mu.row(c) = (data * r_ic.col(c)).transpose() / m_c;
+
+            MatrixXd covariance = MatrixXd::Zero(N, N);
+            for (int i = 0; i < T; ++i) {
+                VectorXd diff = data.col(i) - mu.row(c).transpose();
+                covariance += r_ic(i, c) * diff * diff.transpose();
+            }
+            sigma[c] = covariance / m_c + regularization;
+            pi(c) = m_c / T;
+        }
+
+        // LL termination criterion
+        double LL = 0;
+        for (int i = 0; i < T; ++i) {
+            double sum = 0.0;
+            for (int c = 0; c < n_features; ++c) {
+                MatrixXd co = sigma[c] + regularization;
+                VectorXd diff = data.col(i) - mu.row(c).transpose();
+                double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
+                double denom = pow(2 * M_PI, data.rows() / 2.0) * sqrt(co.determinant());
+                sum += pi(c) * exp(exponent) / denom;
+            }
+            LL += log(sum);
+        }
+        if (abs(LL - previous_LL) < 1e-4) {
+            // std::cout << "Converged at iteration " << iter << std::endl;
+            n_term = iter;
+            break;
+        }
+        previous_LL = LL;
+    }
     return 0;
-};
+}
+
+VectorXd Cestimator::GMM::predict(VectorXd arr){
+    VectorXd pred = VectorXd::Zero(n_features);
+    for (int c = 0; c < n_features; ++c) {
+        MatrixXd co = sigma[c] + regularization;
+        VectorXd diff = arr - mu.row(c).transpose();
+        double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
+        double denom = pow(2 * M_PI, arr.size() / 2.0) * sqrt(co.determinant());
+        pred(c) = exp(exponent) / denom;
+    }
+    pred /= pred.sum();
+    return pred;
+}
+
+void Cestimator::GMM::print(){
+    size_t num_spaces = std::max(0, static_cast<int>(15-name.length()));
+    std::string padding(num_spaces, ' ');
+
+    int ndims = data.rows();
+    std::cout << Cestimator::Utils::colors::OKCYAN << name + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
+    if (n_term == -1){
+        std::cout << Cestimator::Utils::colors::FAIL << "***" << name << " did not converge***" << Cestimator::Utils::colors::ENDC << std::endl;
+    } else {
+        std::cout << Cestimator::Utils::colors::WARNING << "***" << name << " converged after " << n_term << " iterations ***" << Cestimator::Utils::colors::ENDC << std::endl;
+    }
+
+    for (int c = 0; c < n_features; ++c) {
+        for (int i=0; i<ndims; ++i){
+            std::cout << "\t\t" <<  mu.row(c)(i) << "\t\t";
+            for (int j=0; j<ndims; ++j){
+                std::cout << sigma[c](i,j) << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "\n" << std::endl;
+    }
+}
