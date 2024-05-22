@@ -20,8 +20,9 @@
 #include <iomanip>
 #include <iterator>
 #include <chrono>
+#ifdef __VISUALIZER
 #include <mgl2/fltk.h>
-
+#endif
 using namespace Eigen;
 
 namespace Cestimator{
@@ -55,10 +56,16 @@ namespace Cestimator{
             static const std::string UNDERLINE;
         };
         #ifdef __VISUALIZER
-        namespace Visualizers {
-            int scatter3d(mglGraph *gr, MatrixXd arr);
-            int scatter2d(mglGraph *gr, MatrixXd arr, int dim1, int dim2);
-        }
+        class Visualizer {
+            public:
+                mglFLTK *gr;
+                Visualizer(){
+                    gr = new mglFLTK((mglDraw *)NULL,"Cestimator");
+                };
+                int scatter3d(MatrixXd& arr);
+                int scatter2d(MatrixXd& arr, int dim1, int dim2);
+                int ellipse(const VectorXd& mu, const MatrixXd& sigma, int dim1, int dim2);
+        };
         #endif
     }
 }

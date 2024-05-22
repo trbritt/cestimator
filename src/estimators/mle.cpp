@@ -52,7 +52,7 @@ static inline std::vector<T> quantile(const std::vector<T>& inData, const std::v
     return quantiles;
 }
 
-std::vector<double> matrix2vector(MatrixXd x){
+std::vector<double> matrix2vector(MatrixXd& x){
     MatrixXd xx = x;
     int N, M;
     N = x.rows();
@@ -220,7 +220,7 @@ int Cestimator::GMM::run() noexcept {
     return 0;
 }
 
-VectorXd Cestimator::GMM::predict(VectorXd arr){
+VectorXd Cestimator::GMM::predict(VectorXd& arr){
     VectorXd pred = VectorXd::Zero(n_features);
     for (int c = 0; c < n_features; ++c) {
         MatrixXd sigma_local = sigma[c] + regularization;

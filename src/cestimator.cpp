@@ -11,8 +11,6 @@
 */
 #include "cestimator.hpp"
 
-MatrixXd X, Y; // put in global name space so dont have to be captured by lambdas
-
 int main(int argc, char *argv[]) {
 
     if ( argc!=2 ) {
@@ -32,7 +30,7 @@ int main(int argc, char *argv[]) {
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
-    Y = data(all, all);
+    MatrixXd Y = data(all, all);
     Y.transposeInPlace();
 
     // Cestimator::GMM gmm;
@@ -40,13 +38,14 @@ int main(int argc, char *argv[]) {
     // gmm.set_data(Y, 3);
     // gmm.run();
     // gmm.print();
-    X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
+    MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
+
+    Cestimator::Estimator::set_data(X);
 
     timers[1].start();
     Cestimator::non_parametric np;
     np.name = timers[1].name;
-    np.set_data(X);
     np.run();
     np.print();
     timers[1].stop();
@@ -54,7 +53,6 @@ int main(int argc, char *argv[]) {
     timers[2].start();
     Cestimator::shrinkage shr;
     shr.name = timers[2].name;
-    shr.set_data(X);
     shr.run();
     shr.print();
     timers[2].stop();
@@ -62,7 +60,6 @@ int main(int argc, char *argv[]) {
     timers[3].start();
     Cestimator::maximum_likelihood mle;
     mle.name = timers[3].name;
-    mle.set_data(X);
     mle.run();
     mle.print();
     timers[3].stop();
@@ -70,14 +67,15 @@ int main(int argc, char *argv[]) {
     timers[4].start();
     Cestimator::robust rb;
     rb.name = timers[4].name;
-    rb.set_data(X);
     rb.run();
     rb.print();
     timers[4].stop();
 
     #ifdef __VISUALIZER
-    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter2d(a, X, 0, 2);}, "DataScatter");
-    int success = gr.Run();
+    Cestimator::Utils::Visualizer viz;
+    viz.scatter2d(X, 0, 2);
+    viz.ellipse(rb.mu, rb.sigma, 0, 2);
+    viz.gr->Run();
     #endif
 
     Cestimator::Utils::goodbye(timers);

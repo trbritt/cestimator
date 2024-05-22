@@ -34,7 +34,7 @@ namespace Cestimator{
 
             std::string name;
             Estimator(){};
-            static inline void set_data(MatrixXd arr){
+            static inline void set_data(MatrixXd& arr){
 
                 data = arr;
 
@@ -90,12 +90,12 @@ namespace Cestimator{
             int n_features, n_term=-1;
             MatrixXd mu, regularization;
             std::vector<MatrixXd> sigma;
-            inline void set_data(MatrixXd arr, int nf=3){
+            inline void set_data(MatrixXd& arr, int nf=3){
                 Estimator::set_data(arr);
                 n_features = nf;
             }
             int run() noexcept override;
-            VectorXd predict(VectorXd arr);
+            VectorXd predict(VectorXd& arr);
             void print();
     };
         
