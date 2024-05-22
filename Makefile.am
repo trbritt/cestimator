@@ -7,11 +7,14 @@ DFLAGS=@dflags@
 MODULES   := utils estimators
 SRC_DIR   := $(addprefix ./src/,$(MODULES))
 BUILD_DIR := $(addprefix ./bin/,$(MODULES))
+EXEDIR    := ./examples
 
 SRC_MAIN  := ./src/cestimator.cpp
 SRC	      := $(SRC_MAIN) $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp)) 
-OBJ_MAIN  := ./bin/cestimator.o
-OBJ	      := $(OBJ_MAIN) $(patsubst ./src/%.cpp,./bin/%.o,$(SRC)) 
+EXES      := $(wildcard $(EXEDIR)/*.cpp)
+
+OBJ	      := $(patsubst ./src/%.cpp,./bin/%.o,$(SRC)) 
+OBJ_EXES  := $(patsubst ./examples/%.cpp,./bin/examples/%.x,$(EXES)) 
 INCL      := $(addprefix -I,$(SRC_DIR)) -I/usr/include/eigen3
 
 vpath %.cpp $(SRC_DIR)
@@ -23,20 +26,23 @@ endef
 
 .PHONY: all checkdirs clean
 
-all: checkdirs lib/libcestimator.so
+all: checkdirs lib/libcestimator.so examples
 
 lib/libcestimator.so: $(OBJ)
 	$(CXX) $^ -shared -o $@ $(LDFLAGS) $(LDLIBS)
 
 checkdirs: $(BUILD_DIR)
 
+examples: $(OBJ_EXES)
+	
+bin/examples/%.x: examples/%.cpp
+	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -I./src $^ -o $@ $(LDFLAGS) -L./lib -lcestimator $(LDLIBS)
+
 $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR) ./bin/cestimator*
+	@rm -rf $(BUILD_DIR)
 
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
 
-./bin/cestimator.o: $(SRC_MAIN)
-	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -c $< -o $@

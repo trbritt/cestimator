@@ -2,11 +2,10 @@
     author: Tristan Britt
     email: hello@tbritt.xyz
     
-    file: cestimator.cpp
+    file: basic.cpp
     license: gpl_v3
 
-    this is the implementation for all the things that makes the main
-    routine work
+    this is a basic example illustrating the different estimators
 
 */
 #include "cestimator.hpp"
@@ -32,13 +31,6 @@ int main(int argc, char *argv[]) {
 
     MatrixXd Y = data(all, all);
     Y.transposeInPlace();
-
-    // Cestimator::Estimator::set_data(Y);
-    // Cestimator::GMM gmm;
-    // gmm.name = "GMM";
-    // gmm.set_data(3);
-    // gmm.run();
-    // gmm.print();
 
     MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
