@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CPPFLAGS=-O3 -Wall -std=c++17 -march=native -fno-math-errno
+CPPFLAGS=-O3 -fPIC -Wall -std=c++17 -march=native -fno-math-errno
 LDFLAGS=-lm -lz @ldflags@
 DFLAGS=@dflags@
 
@@ -23,10 +23,10 @@ endef
 
 .PHONY: all checkdirs clean
 
-all: checkdirs bin/cestimator.x
+all: checkdirs lib/libcestimator.so
 
-bin/cestimator.x: $(OBJ) 
-	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+lib/libcestimator.so: $(OBJ)
+	$(CXX) $^ -shared -o $@ $(LDFLAGS) $(LDLIBS)
 
 checkdirs: $(BUILD_DIR)
 

@@ -1,5 +1,6 @@
 src/*.o
 bin
+lib
 **/cestimator
 *m4*
 config.*
