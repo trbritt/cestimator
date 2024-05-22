@@ -51,16 +51,16 @@ namespace Cestimator{
         }
 
         int Visualizer::ellipse(const VectorXd& mu, const MatrixXd& sigma, int dim1, int dim2){
-            EigenSolver<MatrixXd> sigma_solver(sigma);
+            EigenSolver<MatrixXd> sigma_solver(sigma({dim1,dim2}, {dim1,dim2}));
             VectorXd evals = sigma_solver.eigenvalues().real();
-            MatrixXd devals = evals({dim1,dim2}).array().sqrt().matrix().asDiagonal();
+            MatrixXd devals = evals.array().sqrt().matrix().asDiagonal();
             MatrixXd evecs = sigma_solver.eigenvectors().real();
             int n_angs = 500;
             MatrixXd ellipse = MatrixXd::Zero(n_angs,2);
             for (int i=0; i<n_angs; ++i){
                 VectorXd y(2);
                 y << cos(2*M_PI*i/n_angs), sin(2*M_PI*i/n_angs);
-                ellipse.row(i) = 2*evecs({0,2}, {0,2}) * devals * y;
+                ellipse.row(i) = 2*evecs * devals * y;
             }
             
             mglData x(n_angs),y(n_angs);
@@ -68,7 +68,7 @@ namespace Cestimator{
                 x.a[i] = ellipse(i,0)+mu(0);
                 y.a[i] = ellipse(i,1)+mu(1);
             }
-            gr->Plot(x, y, "r");
+            gr->Plot(x, y);
 
             return 0;
         }

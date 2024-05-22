@@ -33,11 +33,13 @@ int main(int argc, char *argv[]) {
     MatrixXd Y = data(all, all);
     Y.transposeInPlace();
 
+    // Cestimator::Estimator::set_data(Y);
     // Cestimator::GMM gmm;
     // gmm.name = "GMM";
-    // gmm.set_data(Y, 3);
+    // gmm.set_data(3);
     // gmm.run();
     // gmm.print();
+
     MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
 
@@ -72,9 +74,13 @@ int main(int argc, char *argv[]) {
     timers[4].stop();
 
     #ifdef __VISUALIZER
+    int dim1=0, dim2=2;
     Cestimator::Utils::Visualizer viz;
-    viz.scatter2d(X, 0, 2);
-    viz.ellipse(rb.mu, rb.sigma, 0, 2);
+    viz.scatter2d(X, dim1, dim2);
+    viz.ellipse(rb.mu, rb.sigma, dim1, dim2);
+    viz.ellipse(mle.mu, mle.sigma, dim1, dim2);
+    viz.ellipse(shr.mu, shr.sigma, dim1, dim2);
+    viz.ellipse(np.mu, np.sigma, dim1, dim2);
     viz.gr->Run();
     #endif
 

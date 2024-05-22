@@ -90,8 +90,7 @@ namespace Cestimator{
             int n_features, n_term=-1;
             MatrixXd mu, regularization;
             std::vector<MatrixXd> sigma;
-            inline void set_data(MatrixXd& arr, int nf=3){
-                Estimator::set_data(arr);
+            inline void set_data(int nf=3){
                 n_features = nf;
             }
             int run() noexcept override;
