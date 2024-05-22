@@ -11,7 +11,7 @@
 
 #include "estimators.hpp"
 
-int Cestimator::non_parametric::run(){
+int Cestimator::non_parametric::run() noexcept{
     //non parametric estimates done in construction 
     mu = mu_no_par;
     sigma = sigma_no_par;

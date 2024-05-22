@@ -29,17 +29,17 @@ namespace Cestimator{
         const std::string colors::BOLD = "\033[1m";
         const std::string colors::UNDERLINE = "\033[4m";
 
-        VectorXd mean(MatrixXd x){
+        VectorXd mean(MatrixXd& x){
             return x.rowwise().mean();
         }
 
-        MatrixXd covariance(MatrixXd x){
+        MatrixXd covariance(MatrixXd& x){
             MatrixXd tmp = x.transpose();
             MatrixXd centered = tmp.rowwise() - tmp.colwise().mean();
             return (tmp.adjoint() * centered) / (double(tmp.rows() - 1));
         }
 
-        VectorXd outlier_cutoff(VectorXd d, double d0){
+        VectorXd outlier_cutoff(VectorXd& d, double d0){
             Matrix<int, -1, 1> index{d.size()};
             for (size_t i=0; i < d.size(); ++i){
                 index(i) = d(i) <= d0 ? 1 : 0;

@@ -10,7 +10,7 @@
 */
 #include "estimators.hpp"
 
-int Cestimator::robust::run(){
+int Cestimator::robust::run() noexcept {
     const double tolerance = 1e-6;
     double error = 1e6;
 

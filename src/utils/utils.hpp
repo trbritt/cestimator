@@ -22,17 +22,19 @@
 #include <chrono>
 #include <mgl2/fltk.h>
 
+using namespace Eigen;
+
 namespace Cestimator{
+
     namespace Utils {
-        using namespace Eigen;
 
         class Timer;
 
-        MatrixXd covariance(MatrixXd x);
+        MatrixXd covariance(MatrixXd& x);
 
-        VectorXd mean(MatrixXd x);
+        VectorXd mean(MatrixXd& x);
 
-        VectorXd outlier_cutoff(VectorXd d, double d0);
+        VectorXd outlier_cutoff(VectorXd& d, double d0);
 
         void banner(std::string fname);
 

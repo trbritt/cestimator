@@ -66,7 +66,7 @@ std::vector<double> matrix2vector(MatrixXd x){
     return data;
 }
 
-int Cestimator::maximum_likelihood::run(){
+int Cestimator::maximum_likelihood::run() noexcept{
 
     double error = 1e6;
 
@@ -138,7 +138,7 @@ int Cestimator::maximum_likelihood::run(){
     return 0;
 }
 
-int Cestimator::GMM::run(){
+int Cestimator::GMM::run() noexcept {
     const int iterations = 1000;
 
     int N = data.rows(); //number of dimensions

@@ -10,7 +10,7 @@
 */
 #include "estimators.hpp"
 
-int Cestimator::shrinkage::run(){
+int Cestimator::shrinkage::run() noexcept {
 
     MatrixXd b = MatrixXd::Zero(N, 1);
 

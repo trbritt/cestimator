@@ -23,10 +23,9 @@ namespace Cestimator{
     class Estimator {
             
         protected:
-            MatrixXd data;
-            VectorXd mu_no_par;
-            MatrixXd sigma_no_par;
-            int N, T;
+            static MatrixXd data,sigma_no_par;
+            static VectorXd mu_no_par;
+            static int N, T;
 
         public:
 
@@ -35,7 +34,7 @@ namespace Cestimator{
 
             std::string name;
             Estimator(){};
-            void set_data(MatrixXd arr){
+            static inline void set_data(MatrixXd arr){
 
                 data = arr;
 
@@ -45,7 +44,7 @@ namespace Cestimator{
                 mu_no_par = Utils::mean(data) ;
                 sigma_no_par = Utils::covariance(data);
             }
-            void print(){
+            inline void print(){
                 size_t num_spaces = std::max(0, static_cast<int>(15-name.length()));
                 std::string padding(num_spaces, ' ');
 
@@ -61,29 +60,29 @@ namespace Cestimator{
                 }
                 std::cout << "\n" << std::endl;
             };
-            virtual int run() = 0; //pure virtual initialization, no one can inheret unless they impl run
+            virtual int run() noexcept = 0 ; //pure virtual initialization, no one can inheret unless they impl run. label as noexcept since this should not throw any issues
     };
 
     typedef std::tuple<VectorXd, MatrixXd> Result;
 
     class non_parametric: public Estimator{
         public:
-            int run() override; 
+            int run() noexcept override; 
     };
 
     class shrinkage: public Estimator{
         public:
-            int run() override;
+            int run() noexcept override;
     };
 
     class maximum_likelihood: public Estimator{
         public:
-            int run() override;
+            int run() noexcept override;
     };
 
     class robust: public Estimator{
         public:
-            int run() override;
+            int run() noexcept override;
     };
 
     class GMM: public Estimator {
@@ -91,11 +90,11 @@ namespace Cestimator{
             int n_features, n_term=-1;
             MatrixXd mu, regularization;
             std::vector<MatrixXd> sigma;
-            void set_data(MatrixXd arr, int nf=3){
+            inline void set_data(MatrixXd arr, int nf=3){
                 Estimator::set_data(arr);
                 n_features = nf;
             }
-            int run() override;
+            int run() noexcept override;
             VectorXd predict(VectorXd arr);
             void print();
     };
