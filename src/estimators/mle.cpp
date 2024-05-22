@@ -159,39 +159,39 @@ int Cestimator::GMM::run(){
     std::uniform_int_distribution<> dis(0, T - 1);
 
     // Initialize mu
-    for (int i = 0; i < n_features; ++i) {
-        mu.row(i) = data.col(dis(gen));
+    for (int c = 0; c < n_features; ++c) {
+        mu.row(c) = data.col(dis(gen));
     }
 
     // Initialize covariances
-    for (int i = 0; i < n_features; ++i) {
-        sigma[i] = 5 * MatrixXd::Identity(N, N);
+    for (int c = 0; c < n_features; ++c) {
+        sigma[c] = 5 * MatrixXd::Identity(N, N);
     }
 
     for (int iter = 0; iter < iterations; ++iter) {
         // E Step
-        MatrixXd r_ic = MatrixXd::Zero(T, n_features);
+        MatrixXd r_tc = MatrixXd::Zero(T, n_features);
         for (int c = 0; c < n_features; ++c) {
-            MatrixXd co = sigma[c] + regularization;
+            MatrixXd sigma_local = sigma[c] + regularization;
             for (int i = 0; i < T; ++i) {
                 VectorXd diff = data.col(i) - mu.row(c).transpose();
-                double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
-                double denom = pow(2 * M_PI, N / 2.0) * sqrt(co.determinant());
-                r_ic(i, c) = pi(c) * exp(exponent) / denom;
+                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double denom = pow(2 * M_PI, N / 2.0) * sqrt(sigma_local.determinant());
+                r_tc(i, c) = pi(c) * exp(exponent) / denom;
             }
         }
-        for (int i = 0; i < T; ++i) {
-            r_ic.row(i) /= r_ic.row(i).sum();
+        for (int t = 0; t < T; ++t) {
+            r_tc.row(t) /= r_tc.row(t).sum();
         }
         // M Step
         for (int c = 0; c < n_features; ++c) {
-            double m_c = r_ic.col(c).sum();
-            mu.row(c) = (data * r_ic.col(c)).transpose() / m_c;
+            double m_c = r_tc.col(c).sum();
+            mu.row(c) = (data * r_tc.col(c)).transpose() / m_c;
 
             MatrixXd covariance = MatrixXd::Zero(N, N);
-            for (int i = 0; i < T; ++i) {
-                VectorXd diff = data.col(i) - mu.row(c).transpose();
-                covariance += r_ic(i, c) * diff * diff.transpose();
+            for (int t = 0; t < T; ++t) {
+                VectorXd diff = data.col(t) - mu.row(c).transpose();
+                covariance += r_tc(t, c) * diff * diff.transpose();
             }
             sigma[c] = covariance / m_c + regularization;
             pi(c) = m_c / T;
@@ -199,13 +199,13 @@ int Cestimator::GMM::run(){
 
         // LL termination criterion
         double LL = 0;
-        for (int i = 0; i < T; ++i) {
+        for (int t = 0; t < T; ++t) {
             double sum = 0.0;
             for (int c = 0; c < n_features; ++c) {
-                MatrixXd co = sigma[c] + regularization;
-                VectorXd diff = data.col(i) - mu.row(c).transpose();
-                double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
-                double denom = pow(2 * M_PI, data.rows() / 2.0) * sqrt(co.determinant());
+                MatrixXd sigma_local = sigma[c] + regularization;
+                VectorXd diff = data.col(t) - mu.row(c).transpose();
+                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double denom = pow(2 * M_PI, data.rows() / 2.0) * sqrt(sigma_local.determinant());
                 sum += pi(c) * exp(exponent) / denom;
             }
             LL += log(sum);
@@ -223,10 +223,10 @@ int Cestimator::GMM::run(){
 VectorXd Cestimator::GMM::predict(VectorXd arr){
     VectorXd pred = VectorXd::Zero(n_features);
     for (int c = 0; c < n_features; ++c) {
-        MatrixXd co = sigma[c] + regularization;
+        MatrixXd sigma_local = sigma[c] + regularization;
         VectorXd diff = arr - mu.row(c).transpose();
-        double exponent = -0.5 * diff.transpose() * co.inverse() * diff;
-        double denom = pow(2 * M_PI, arr.size() / 2.0) * sqrt(co.determinant());
+        double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+        double denom = pow(2 * M_PI, arr.size() / 2.0) * sqrt(sigma_local.determinant());
         pred(c) = exp(exponent) / denom;
     }
     pred /= pred.sum();
