@@ -83,6 +83,10 @@ void Cestimator::Utils::goodbye(std::vector<Cestimator::Utils::Timer> timers){
     {
         timers[i].print();
     }
+    Cestimator::Utils::goodbye();
+}
+
+void Cestimator::Utils::goodbye(){
     // Get the current time
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
@@ -91,7 +95,6 @@ void Cestimator::Utils::goodbye(std::vector<Cestimator::Utils::Timer> timers){
 
     // Convert time_t to a local time representation (struct tm)
     std::tm local_time = *std::localtime(&now_time_t);
-
     std::cout << Cestimator::Utils::colors::OKGREEN << "###################################################################" << std::endl;
     std::cout << "# Cleanly exiting; ended on " << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S") << " ... Goodbye." << std::endl;
     std::cout << "###################################################################" << Cestimator::Utils::colors::ENDC << std::endl;

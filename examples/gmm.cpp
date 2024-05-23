@@ -9,6 +9,8 @@ int main(int argc, char *argv[]) {
     Cestimator::Utils::banner(fname);
     std::vector<Cestimator::Utils::Timer> timers(2);
 
+    timers[0].name = "Loading";
+    timers[1].name = "GMM";
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 

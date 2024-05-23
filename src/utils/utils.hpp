@@ -40,6 +40,7 @@ namespace Cestimator{
         void banner(std::string fname);
 
         void goodbye(std::vector<Timer> timers);
+        void goodbye();
 
         std::string word_wrap(std::string text, unsigned per_line);
 
