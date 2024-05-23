@@ -11,3 +11,7 @@ Makefile.in
 compile
 
 **/*.x
+
+CMakeFiles
+tests/cmake_install.cmake
+tests/CMakeCache.txt
