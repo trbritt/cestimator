@@ -40,6 +40,7 @@ bin/examples/%.x: examples/%.cpp
 $(BUILD_DIR):
 	@mkdir -p $@
 	@mkdir -p bin/examples
+	@mkdir -p lib
 
 clean:
 	@rm -rf $(BUILD_DIR) bin/examples/*
