@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CPPFLAGS=-O3 -fPIC -Wall -std=c++17 -march=native -fno-math-errno
+CPPFLAGS=-O3 -fPIC -fopenmp -Wall -std=c++17 -march=native -fno-math-errno
 LDFLAGS=-lm -lz @ldflags@
 DFLAGS=@dflags@
 
