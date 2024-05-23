@@ -39,9 +39,10 @@ bin/examples/%.x: examples/%.cpp
 
 $(BUILD_DIR):
 	@mkdir -p $@
+	@mkdir -p bin/examples
 
 clean:
-	@rm -rf $(BUILD_DIR) bin/examples
+	@rm -rf $(BUILD_DIR) bin/examples/*
 
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
 
