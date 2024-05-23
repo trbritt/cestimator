@@ -9,21 +9,17 @@
 
 */
 #include "estimators.hpp"
-#include "../utils/utils.hpp"
 
-Cestimator::Result Cestimator::robust(MatrixXd x){
+int Cestimator::robust::run() noexcept {
     const double tolerance = 1e-6;
     double error = 1e6;
-
-    const int N = x.rows();
-    const int T = x.cols();
 
     VectorXd w = VectorXd::Ones(T);
     VectorXd Zeros = VectorXd::Zero(N);
 
-    VectorXd mu = Zeros;
+    mu = Zeros;
 
-    MatrixXd sigma = MatrixXd::Zero(N,N);
+    sigma = MatrixXd::Zero(N,N);
 
     double d0 = sqrt(N) + sqrt(2);
     VectorXd mu_old;
@@ -38,21 +34,21 @@ Cestimator::Result Cestimator::robust(MatrixXd x){
 
         mu = Zeros;
         for (size_t t=0; t<T; ++t){
-            mu += w(t)*w(t) * x(all, t).transpose();
+            mu += w(t)*w(t) * data(all, t).transpose();
         }
         mu /= w.sum();
 
         sigma = MatrixXd::Zero(N,N);
         for (size_t t=0; t<T; ++t){
             
-            tmp = (x(all,t) - mu);
+            tmp = (data(all,t) - mu);
             sigma += w(t) * w(t) * tmp * tmp.transpose();
         }
         sigma /= (w.transpose() * w);
 
         inv_sigma = sigma.inverse();
         for (size_t t=0; t<T; ++t){
-            MatrixXd tmp2 = x(all,t) - mu;
+            MatrixXd tmp2 = data(all,t) - mu;
             //below is an annoying typecast issue, the matrix products work out to a scalar value, but it is still of the type MatrixXd, so to actually get the value we take the (1,1) element explicitly, despite it being the only element            
             d(t) = sqrt((tmp2.transpose() * inv_sigma * tmp2)(0));
         }
@@ -60,5 +56,5 @@ Cestimator::Result Cestimator::robust(MatrixXd x){
         error = ((sigma-sigma_old)*(sigma-sigma_old) + (mu-mu_old) * (mu-mu_old).transpose()).trace();
     }
 
-    return std::make_tuple(mu, sigma);
+    return 0;
 }

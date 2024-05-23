@@ -10,12 +10,10 @@
 */
 
 #include "estimators.hpp"
-#include "../utils/utils.hpp"
 
-Cestimator::Result Cestimator::non_parametric(MatrixXd x){
-    VectorXd mu = Cestimator::Utils::mean(x);
-    
-    MatrixXd sigma = Cestimator::Utils::covariance(x);
-
-    return std::make_tuple(mu, sigma);
+int Cestimator::non_parametric::run() noexcept{
+    //non parametric estimates done in construction 
+    mu = mu_no_par;
+    sigma = sigma_no_par;
+    return 0;
 }

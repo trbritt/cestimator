@@ -21,19 +21,14 @@ to generate a `Makefile`. Then run `make` to actually compile the project. All o
 
 ## Usage
 
-The programme as built is designed to take in a CSV file, where a column is the time history of the variable of interest. The CSV should have multiple columns corresponding to the quantities the user believes to be codistributed. In this case, the programme will analyse the $N$-dimensional distribution, where $N$ is the number of columns:
+The programme as built is designed to take in a CSV file, where a column is the time history of the variable of interest. The CSV should have multiple columns corresponding to the quantities the user believes to be codistributed. In this case, the programme will analyse the $N$-dimensional distribution, where $N$ is the number of columns.
 
-```bash
-./bin/cestimator.x <data_file.csv> 
-```
+The programme builds a library `libcestimator.so` in the `lib` directory, that can be used to build custom scripts (don't forget to include the header `src/cestimators.hpp`!). Examples are given in the [examples](https://github.com/trbritt/cestimator/tree/master/examples) directory. These examples are also built by the make script via the target `examples`.
 
-The programme is geared at identifying statistically invariant quantities, so it considers the linear difference (linear returns in the case of market invariants) and determines the distribution of those quantites.
 
 ## Output
 
-The output is simply formatted as text to stdout for now.
-
-![](./examples/US_SwapRates.png)
+The output is simply formatted as text to stdout for now, but will soon include more common formats for speed.
 
 ## License
 

@@ -20,25 +20,27 @@
 #include <iomanip>
 #include <iterator>
 #include <chrono>
+#ifdef __VISUALIZER
 #include <mgl2/fltk.h>
+#endif
+using namespace Eigen;
 
 namespace Cestimator{
+
     namespace Utils {
-        using namespace Eigen;
 
         class Timer;
 
-        MatrixXd covariance(MatrixXd x);
+        MatrixXd covariance(MatrixXd& x);
 
-        VectorXd mean(MatrixXd x);
+        VectorXd mean(MatrixXd& x);
 
-        VectorXd outlier_cutoff(VectorXd d, double d0);
+        VectorXd outlier_cutoff(VectorXd& d, double d0);
 
         void banner(std::string fname);
 
         void goodbye(std::vector<Timer> timers);
-
-        std::string word_wrap(std::string text, unsigned per_line);
+        void goodbye();
 
         class colors {
         public:
@@ -53,10 +55,16 @@ namespace Cestimator{
             static const std::string UNDERLINE;
         };
         #ifdef __VISUALIZER
-        namespace Visualizers {
-            int scatter3d(mglGraph *gr, MatrixXd arr);
-            int scatter2d(mglGraph *gr, MatrixXd arr, int dim1, int dim2);
-        }
+        class Visualizer {
+            public:
+                mglFLTK *gr;
+                Visualizer(){
+                    gr = new mglFLTK((mglDraw *)NULL,"Cestimator");
+                };
+                int scatter3d(MatrixXd& arr);
+                int scatter2d(MatrixXd& arr, int dim1, int dim2);
+                int ellipse(const VectorXd& mu, const MatrixXd& sigma, int dim1, int dim2);
+        };
         #endif
     }
 }

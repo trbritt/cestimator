@@ -8,10 +8,8 @@
     this is the main code for the maximum likelihood estimator
 
 */
-#include <vector>
-#include <iterator>
 #include "estimators.hpp"
-#include "../utils/utils.hpp"
+#include <random>
 
 template<typename T>
 static inline double lerp(T v0, T v1, T t)
@@ -54,7 +52,7 @@ static inline std::vector<T> quantile(const std::vector<T>& inData, const std::v
     return quantiles;
 }
 
-std::vector<double> matrix2vector(MatrixXd x){
+std::vector<double> matrix2vector(MatrixXd& x){
     MatrixXd xx = x;
     int N, M;
     N = x.rows();
@@ -68,20 +66,19 @@ std::vector<double> matrix2vector(MatrixXd x){
     return data;
 }
 
-Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
+int Cestimator::maximum_likelihood::run() noexcept{
 
     double error = 1e6;
-    const int N = x.rows();
-    const int T = x.cols();
+
 
     VectorXd w = VectorXd::Ones(T);
     VectorXd Zeros = VectorXd::Zero(N);
 
-    VectorXd mu = Zeros;
+    mu = Zeros;
 
-    MatrixXd sigma = MatrixXd::Zero(N,N);
+    sigma = MatrixXd::Zero(N,N);
 
-    std::vector<double> flattened = matrix2vector(x);
+    std::vector<double> flattened = matrix2vector(data);
     std::vector<double> quant = quantile<double>(flattened, {0.75, 0.25});
 
     const double tolerance = abs(0.01*(quant[1]-quant[0]));
@@ -105,8 +102,8 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
             sigma_old = sigma;
 
             W = w * VectorXd::Ones(N).transpose();
-            mu = x.transpose().cwiseProduct(W).colwise().sum() / w.sum();
-            x_c = x - mu * VectorXd::Ones(T).transpose();
+            mu = data.transpose().cwiseProduct(W).colwise().sum() / w.sum();
+            x_c = data - mu * VectorXd::Ones(T).transpose();
             sigma = W.transpose().cwiseProduct(x_c) * x_c.transpose() / T;
 
             inv_sigma = sigma.inverse();
@@ -124,7 +121,7 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
 
         double ll=0;
         for (int t=0; t<T; ++t){
-            MatrixXd centered = x(all, t) - mu;
+            MatrixXd centered = data(all, t) - mu;
             double ma2 = (centered.transpose() * inv_sigma * centered)(0);
             ll += norm - (nu+N)/2 * log(1+ma2/nu);
         }
@@ -135,5 +132,127 @@ Cestimator::Result Cestimator::maximum_likelihood(MatrixXd x){
     int argmaxVal = std::distance(LL.begin(), result);
     int nu = nus[argmaxVal];
     Cestimator::Result retval = res[argmaxVal];
-    return std::make_tuple(std::get<0>(retval), std::get<1>(retval) * nu / (nu - 2));
+    mu = std::get<0>(retval);
+    sigma = std::get<1>(retval);
+    sigma *= nu / (nu-2);
+    return 0;
+}
+
+int Cestimator::GMM::run() noexcept {
+    const int iterations = 1000;
+
+    int N = data.rows(); //number of dimensions
+    int T = data.cols(); //number of observations
+
+    std::vector<double> LL;
+    double previous_LL = -std::numeric_limits<double>::infinity();
+
+    mu = MatrixXd::Zero(n_features, N);
+    VectorXd pi = VectorXd::Ones(n_features) / n_features;
+
+    sigma = std::vector<MatrixXd>(n_features, MatrixXd::Identity(N, N));
+
+    regularization = 1e-6 * MatrixXd::Identity(N, N);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, T - 1);
+
+    // Initialize mu
+    for (int c = 0; c < n_features; ++c) {
+        mu.row(c) = data.col(dis(gen));
+    }
+
+    // Initialize covariances
+    for (int c = 0; c < n_features; ++c) {
+        sigma[c] = 5 * MatrixXd::Identity(N, N);
+    }
+
+    for (int iter = 0; iter < iterations; ++iter) {
+        // E Step
+        MatrixXd r_tc = MatrixXd::Zero(T, n_features);
+        for (int c = 0; c < n_features; ++c) {
+            MatrixXd sigma_local = sigma[c] + regularization;
+            for (int i = 0; i < T; ++i) {
+                VectorXd diff = data.col(i) - mu.row(c).transpose();
+                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double denom = pow(2 * M_PI, N / 2.0) * sqrt(sigma_local.determinant());
+                r_tc(i, c) = pi(c) * exp(exponent) / denom;
+            }
+        }
+        for (int t = 0; t < T; ++t) {
+            r_tc.row(t) /= r_tc.row(t).sum();
+        }
+        // M Step
+        for (int c = 0; c < n_features; ++c) {
+            double m_c = r_tc.col(c).sum();
+            mu.row(c) = (data * r_tc.col(c)).transpose() / m_c;
+
+            MatrixXd covariance = MatrixXd::Zero(N, N);
+            for (int t = 0; t < T; ++t) {
+                VectorXd diff = data.col(t) - mu.row(c).transpose();
+                covariance += r_tc(t, c) * diff * diff.transpose();
+            }
+            sigma[c] = covariance / m_c + regularization;
+            pi(c) = m_c / T;
+        }
+
+        // LL termination criterion
+        double LL = 0;
+        for (int t = 0; t < T; ++t) {
+            double sum = 0.0;
+            for (int c = 0; c < n_features; ++c) {
+                MatrixXd sigma_local = sigma[c] + regularization;
+                VectorXd diff = data.col(t) - mu.row(c).transpose();
+                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double denom = pow(2 * M_PI, data.rows() / 2.0) * sqrt(sigma_local.determinant());
+                sum += pi(c) * exp(exponent) / denom;
+            }
+            LL += log(sum);
+        }
+        if (abs(LL - previous_LL) < 1e-4) {
+            // std::cout << "Converged at iteration " << iter << std::endl;
+            n_term = iter;
+            break;
+        }
+        previous_LL = LL;
+    }
+    return 0;
+}
+
+VectorXd Cestimator::GMM::predict(VectorXd& arr){
+    VectorXd pred = VectorXd::Zero(n_features);
+    for (int c = 0; c < n_features; ++c) {
+        MatrixXd sigma_local = sigma[c] + regularization;
+        VectorXd diff = arr - mu.row(c).transpose();
+        double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+        double denom = pow(2 * M_PI, arr.size() / 2.0) * sqrt(sigma_local.determinant());
+        pred(c) = exp(exponent) / denom;
+    }
+    pred /= pred.sum();
+    return pred;
+}
+
+void Cestimator::GMM::print(){
+    size_t num_spaces = std::max(0, static_cast<int>(15-name.length()));
+    std::string padding(num_spaces, ' ');
+
+    int ndims = data.rows();
+    std::cout << Cestimator::Utils::colors::OKCYAN << name + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
+    if (n_term == -1){
+        std::cout << Cestimator::Utils::colors::FAIL << "***" << name << " did not converge***" << Cestimator::Utils::colors::ENDC << std::endl;
+    } else {
+        std::cout << Cestimator::Utils::colors::WARNING << "***" << name << " converged after " << n_term << " iterations ***" << Cestimator::Utils::colors::ENDC << std::endl;
+    }
+
+    for (int c = 0; c < n_features; ++c) {
+        for (int i=0; i<ndims; ++i){
+            std::cout << "\t\t" <<  mu.row(c)(i) << "\t\t";
+            for (int j=0; j<ndims; ++j){
+                std::cout << sigma[c](i,j) << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "\n" << std::endl;
+    }
 }

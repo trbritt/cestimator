@@ -2,16 +2,13 @@
     author: Tristan Britt
     email: hello@tbritt.xyz
     
-    file: cestimator.cpp
+    file: basic.cpp
     license: gpl_v3
 
-    this is the implementation for all the things that makes the main
-    routine work
+    this is a basic example illustrating the different estimators
 
 */
 #include "cestimator.hpp"
-
-MatrixXd X, Y; // put in global name space so dont have to be captured by lambdas
 
 int main(int argc, char *argv[]) {
 
@@ -32,32 +29,51 @@ int main(int argc, char *argv[]) {
     timers[0].start();
     MatrixXd data = load_csv<MatrixXd>(fname);
 
-    Y = data(all, all);
+    MatrixXd Y = data(all, all);
     Y.transposeInPlace();
 
-    X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
+    MatrixXd X = Y(all, seq(1,last)) - Y(all, seq(0, last-1));
     timers[0].stop();
 
+    Cestimator::Estimator::set_data(X);
+
     timers[1].start();
-    pprint(Cestimator::non_parametric(X), timers[1].name);
+    Cestimator::non_parametric np;
+    np.name = timers[1].name;
+    np.run();
+    np.print();
     timers[1].stop();
 
     timers[2].start();
-    pprint(Cestimator::shrinkage(X), timers[2].name);
-
+    Cestimator::shrinkage shr;
+    shr.name = timers[2].name;
+    shr.run();
+    shr.print();
     timers[2].stop();
 
     timers[3].start();
-    pprint(Cestimator::maximum_likelihood(X), timers[3].name);
+    Cestimator::maximum_likelihood mle;
+    mle.name = timers[3].name;
+    mle.run();
+    mle.print();
     timers[3].stop();
 
     timers[4].start();
-    pprint(Cestimator::robust(X), timers[4].name);
+    Cestimator::robust rb;
+    rb.name = timers[4].name;
+    rb.run();
+    rb.print();
     timers[4].stop();
 
     #ifdef __VISUALIZER
-    mglFLTK gr([](auto a){return Cestimator::Utils::Visualizers::scatter2d(a, X, 0, 2);}, "DataScatter");
-    int success = gr.Run();
+    int dim1=0, dim2=2;
+    Cestimator::Utils::Visualizer viz;
+    viz.scatter2d(X, dim1, dim2);
+    viz.ellipse(rb.mu, rb.sigma, dim1, dim2);
+    viz.ellipse(mle.mu, mle.sigma, dim1, dim2);
+    viz.ellipse(shr.mu, shr.sigma, dim1, dim2);
+    viz.ellipse(np.mu, np.sigma, dim1, dim2);
+    viz.gr->Run();
     #endif
 
     Cestimator::Utils::goodbye(timers);

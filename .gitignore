@@ -1,12 +1,13 @@
 src/*.o
 bin
+lib
 **/cestimator
 *m4*
 config.*
 
 configure~
-missing
-install-sh
 Makefile
 Makefile.in
 compile
+
+**/*.x

@@ -22,7 +22,6 @@
 
 #include <Eigen/Dense>
 
-#include "utils/utils.hpp"
 #include "estimators/estimators.hpp"
 
 using namespace Eigen;
@@ -50,29 +49,4 @@ M load_csv (const std::string & path) {
         ++rows;
     }
     return Map<const Matrix<typename M::Scalar, M::RowsAtCompileTime, M::ColsAtCompileTime, RowMajor>>(values.data(), rows, values.size()/rows);
-}
-
-#define assertm(exp, msg) assert(((void)msg, exp));
-
-void pprint(Cestimator::Result res, std::string label){
-
-    size_t num_spaces = std::max(0, static_cast<int>(15-label.length()));
-    std::string padding(num_spaces, ' ');
-
-    VectorXd mu = std::get<0>(res);
-    MatrixXd sigma = std::get<1>(res);
-
-    int ndims = mu.size();
-    std::cout << Cestimator::Utils::colors::OKCYAN << label + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
-
-    for (int i=0; i<ndims; ++i){
-        std::cout << "\t\t" <<  mu(i) << "\t";
-        for (int j=0; j<ndims; ++j){
-             std::cout << sigma(i,j) << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "\n" << std::endl;
-
-
 }
