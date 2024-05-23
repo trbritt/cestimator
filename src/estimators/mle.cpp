@@ -109,7 +109,7 @@ int Cestimator::maximum_likelihood::run() noexcept{
             ma2 = (x_c.transpose() * inv_sigma * x_c).rowwise().sum();
             w = (nu+N)/(nu + ma2.array());
             tmp = (sigma-sigma_old).cwiseProduct(sigma-sigma_old) / N;
-            tmp += (mu-mu_old)*(mu-mu_old).transpose()/ N;
+            tmp += (mu-mu_old).cwiseProduct(mu-mu_old).transpose()/ N;
             error = tmp.trace();
         }
         // now that we've achieved the mu and sigma for
