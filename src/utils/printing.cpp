@@ -19,45 +19,6 @@ std::string getFormattedTime(const std::tm &time_struct, const std::string &form
   return ss.str();
 }
 
-
-
-std::string Cestimator::Utils::word_wrap(std::string text, unsigned per_line)
-{
-    unsigned line_begin = 0;
-
-    while (line_begin < text.size())
-    {
-        const unsigned ideal_end = line_begin + per_line ;
-        unsigned line_end = ideal_end < text.size() ? ideal_end : text.size()-1;
-
-        if (line_end == text.size() - 1)
-            ++line_end;
-        else if (std::isspace(text[line_end]))
-        {
-            text[line_end] = '\n';
-            ++line_end;
-        }
-        else    // backtrack
-        {
-            unsigned end = line_end;
-            while ( end > line_begin && !std::isspace(text[end]))
-                --end;
-
-            if (end != line_begin)                  
-            {                                       
-                line_end = end;                     
-                text[line_end++] = '\n';            
-            }                                       
-            else                                    
-                text.insert(line_end++, 1, '\n');
-        }
-
-        line_begin = line_end;
-    }
-
-    return text;
-}
-
 void Cestimator::Utils::banner(std::string fname) {
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);

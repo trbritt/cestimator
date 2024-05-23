@@ -9,8 +9,7 @@ SRC_DIR   := $(addprefix ./src/,$(MODULES))
 BUILD_DIR := $(addprefix ./bin/,$(MODULES))
 EXEDIR    := ./examples
 
-SRC_MAIN  := ./src/cestimator.cpp
-SRC	      := $(SRC_MAIN) $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp)) 
+SRC	      := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp)) 
 EXES      := $(wildcard $(EXEDIR)/*.cpp)
 
 OBJ	      := $(patsubst ./src/%.cpp,./bin/%.o,$(SRC)) 
@@ -26,7 +25,7 @@ endef
 
 .PHONY: all checkdirs clean
 
-all: checkdirs lib/libcestimator.so examples
+all: checkdirs lib/libcestimator.so
 
 lib/libcestimator.so: $(OBJ)
 	$(CXX) $^ -shared -o $@ $(LDFLAGS) $(LDLIBS)
@@ -42,7 +41,7 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 clean:
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) bin/examples
 
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
 

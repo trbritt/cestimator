@@ -42,8 +42,6 @@ namespace Cestimator{
         void goodbye(std::vector<Timer> timers);
         void goodbye();
 
-        std::string word_wrap(std::string text, unsigned per_line);
-
         class colors {
         public:
             static const std::string HEADER;
