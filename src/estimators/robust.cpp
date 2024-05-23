@@ -46,7 +46,7 @@ int Cestimator::robust::run() noexcept {
         }
         sigma /= (w.transpose() * w);
 
-        inv_sigma = sigma.inverse();
+        inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
         for (size_t t=0; t<T; ++t){
             MatrixXd tmp2 = data(all,t) - mu;
             //below is an annoying typecast issue, the matrix products work out to a scalar value, but it is still of the type MatrixXd, so to actually get the value we take the (1,1) element explicitly, despite it being the only element            

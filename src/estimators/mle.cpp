@@ -106,7 +106,7 @@ int Cestimator::maximum_likelihood::run() noexcept{
             x_c = data - mu * VectorXd::Ones(T).transpose();
             sigma = W.transpose().cwiseProduct(x_c) * x_c.transpose() / T;
 
-            inv_sigma = sigma.inverse();
+            inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
             ma2 = (x_c.transpose() * inv_sigma * x_c).rowwise().sum();
             for (size_t i=0; i<w.size();  ++i){
                 w(i) = (nu+N) / (nu + ma2(i));
@@ -175,7 +175,7 @@ int Cestimator::GMM::run() noexcept {
             MatrixXd sigma_local = sigma[c] + regularization;
             for (int i = 0; i < T; ++i) {
                 VectorXd diff = data.col(i) - mu.row(c).transpose();
-                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double exponent = -0.5 * diff.transpose() * sigma_local.llt().solve(MatrixXd::Identity(N, N)) * diff;
                 double denom = pow(2 * M_PI, N / 2.0) * sqrt(sigma_local.determinant());
                 r_tc(i, c) = pi(c) * exp(exponent) / denom;
             }
@@ -204,7 +204,7 @@ int Cestimator::GMM::run() noexcept {
             for (int c = 0; c < n_features; ++c) {
                 MatrixXd sigma_local = sigma[c] + regularization;
                 VectorXd diff = data.col(t) - mu.row(c).transpose();
-                double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+                double exponent = -0.5 * diff.transpose() * sigma_local.llt().solve(MatrixXd::Identity(N, N)) * diff;
                 double denom = pow(2 * M_PI, data.rows() / 2.0) * sqrt(sigma_local.determinant());
                 sum += pi(c) * exp(exponent) / denom;
             }
@@ -225,7 +225,7 @@ VectorXd Cestimator::GMM::predict(VectorXd& arr){
     for (int c = 0; c < n_features; ++c) {
         MatrixXd sigma_local = sigma[c] + regularization;
         VectorXd diff = arr - mu.row(c).transpose();
-        double exponent = -0.5 * diff.transpose() * sigma_local.inverse() * diff;
+        double exponent = -0.5 * diff.transpose() * sigma_local.llt().solve(MatrixXd::Identity(N, N)) * diff;
         double denom = pow(2 * M_PI, arr.size() / 2.0) * sqrt(sigma_local.determinant());
         pred(c) = exp(exponent) / denom;
     }

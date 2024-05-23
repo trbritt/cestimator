@@ -18,24 +18,27 @@ int Cestimator::shrinkage::run() noexcept {
 
     VectorXd lambda_hat = sigma_solver.eigenvalues().real();
 
-    double a = (1/T) * (lambda_hat.sum() - 2*lambda_hat.maxCoeff()) / (mu_no_par.transpose() * mu_no_par);
-    a = std::fmax(0.0, std::fmin(a, 1.0));
+    double lambda_hat_sum = lambda_hat.sum();
+    double lambda_hat_max = lambda_hat.maxCoeff();
+    double mu_no_par_sq2 = mu_no_par.squaredNorm();
+
+    double a = (1.0 / T) * (lambda_hat_sum - 2 * lambda_hat_max) / mu_no_par_sq2;
+    a = std::max(0.0, std::min(a, 1.0));
 
     mu = (1-a) * mu_no_par + a * b;
 
     MatrixXd C = lambda_hat.mean() * MatrixXd::Identity(N,N);
 
     // now we compute the optimal weight
+    MatrixXd Xcentered;
+    MatrixXd sigmacentered = sigma_no_par - C;
     double num = 0;
-    MatrixXd tmp;
     for (int t = 0; t< T; ++t){
-        tmp = data(all, t) * data(all,t).transpose() - sigma_no_par;
-        tmp *= tmp;
-        num += (1/T) * tmp.trace(); 
+        Xcentered = data.col(t) * data.col(t).transpose() - sigma_no_par;
+        num += (Xcentered.array() * Xcentered.array()).sum();
     };
     
-    tmp = (sigma_no_par - C) * (sigma_no_par - C);
-    double denom = tmp.trace();
+    double denom = (sigmacentered.array() * sigmacentered.array()).sum();
 
     a = (1/T) * num / denom;
     a = std::fmax(0.0, std::fmin(a, 1.0));
