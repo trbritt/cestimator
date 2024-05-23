@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     
     Eigen::initParallel();
     Eigen::setNbThreads(6);
-    
+
     std::string fname = std::string(argv[1]);
 
     Cestimator::Utils::banner(fname);
@@ -60,10 +60,9 @@ int main(int argc, char *argv[]) {
     int dim1=0, dim2=2;
     Cestimator::Utils::Visualizer viz;
     viz.scatter2d(X, dim1, dim2);
-    viz.ellipse(rb.mu, rb.sigma, dim1, dim2);
-    viz.ellipse(mle.mu, mle.sigma, dim1, dim2);
-    viz.ellipse(shr.mu, shr.sigma, dim1, dim2);
-    viz.ellipse(np.mu, np.sigma, dim1, dim2);
+    for (auto est : estimators){
+        viz.ellipse(est->mu, est->sigma, dim1, dim2);
+    }
     viz.gr->Run();
     #endif
 
