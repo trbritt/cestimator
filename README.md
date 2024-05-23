@@ -28,9 +28,7 @@ The programme builds a library `libcestimator.so` in the `lib` directory, that c
 
 ## Output
 
-The output is simply formatted as text to stdout for now.
-
-![](./examples/US_SwapRates.png)
+The output is simply formatted as text to stdout for now, but will soon include more common formats for speed.
 
 ## License
 
