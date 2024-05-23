@@ -40,19 +40,13 @@ namespace Cestimator{
         }
 
         VectorXd outlier_cutoff(VectorXd& d, double d0){
-            Matrix<int, -1, 1> index{d.size()};
-            for (size_t i=0; i < d.size(); ++i){
-                index(i) = d(i) <= d0 ? 1 : 0;
-            }
             const double b_2 = 1.25;
-            VectorXd omega{d.size()};
-            for (size_t i = 0; i < d.size(); ++i){
-                if (index(i)) {
-                    omega(i) = 1;
-                } else {
-                    omega(i) = exp(-0.5*((d(i)-d0)*(d(i)-d0) / (b_2*b_2)));
-                }
-            }
+            const double b_2_2 = b_2 * b_2;
+
+            VectorXd omega = (d.array() <= d0).select(
+                1.0,
+                (-0.5 * ((d.array() - d0).square() / b_2_2)).exp()
+            );
             return omega;
         }
     }

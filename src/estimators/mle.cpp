@@ -87,13 +87,13 @@ int Cestimator::maximum_likelihood::run() noexcept{
 
     std::vector<double> LL;
     std::vector<Cestimator::Result> res;
-    VectorXd mu_old;
-    MatrixXd sigma_old;
-    MatrixXd inv_sigma;
-    MatrixXd W;
-    MatrixXd x_c;
-    VectorXd ma2;
-    MatrixXd tmp;
+    VectorXd mu_old = VectorXd::Zero(N);
+    MatrixXd sigma_old = MatrixXd::Zero(N,N);
+    MatrixXd inv_sigma = MatrixXd::Identity(N,N);
+    MatrixXd W(N,T);
+    MatrixXd x_c(N,T);
+    VectorXd ma2(T);
+    MatrixXd tmp(N,N);
 
     for (int idn=0; idn<6; ++idn){
         double nu = static_cast<double>(nus[idn]);
@@ -101,17 +101,14 @@ int Cestimator::maximum_likelihood::run() noexcept{
             mu_old = mu;
             sigma_old = sigma;
 
-            W = w * VectorXd::Ones(N).transpose();
-            mu = data.transpose().cwiseProduct(W).colwise().sum() / w.sum();
-            x_c = data - mu * VectorXd::Ones(T).transpose();
-            sigma = W.transpose().cwiseProduct(x_c) * x_c.transpose() / T;
+            mu = (data * (w.array().square()).matrix()).rowwise().sum() / w.sum();
+            W = (data.colwise() - mu) * w.asDiagonal();
+            sigma = W*W.transpose() / (w.array().square().sum());
 
             inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
             ma2 = (x_c.transpose() * inv_sigma * x_c).rowwise().sum();
-            for (size_t i=0; i<w.size();  ++i){
-                w(i) = (nu+N) / (nu + ma2(i));
-            }
-            tmp = (sigma-sigma_old)*(sigma-sigma_old) / N;
+            w = (nu+N)/(nu + ma2.array());
+            tmp = (sigma-sigma_old).cwiseProduct(sigma-sigma_old) / N;
             tmp += (mu-mu_old)*(mu-mu_old).transpose()/ N;
             error = tmp.trace();
         }
@@ -121,7 +118,7 @@ int Cestimator::maximum_likelihood::run() noexcept{
 
         double ll=0;
         for (int t=0; t<T; ++t){
-            MatrixXd centered = data(all, t) - mu;
+            MatrixXd centered = data.col(t)- mu;
             double ma2 = (centered.transpose() * inv_sigma * centered)(0);
             ll += norm - (nu+N)/2 * log(1+ma2/nu);
         }

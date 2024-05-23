@@ -22,29 +22,21 @@ int Cestimator::robust::run() noexcept {
     sigma = MatrixXd::Zero(N,N);
 
     double d0 = sqrt(N) + sqrt(2);
-    VectorXd mu_old;
-    MatrixXd sigma_old;
-    MatrixXd inv_sigma;
-    MatrixXd tmp;
+    VectorXd mu_old = VectorXd::Zero(N);
+    MatrixXd sigma_old = MatrixXd::Zero(N,N);
+    MatrixXd inv_sigma = MatrixXd::Identity(N,N);
+    MatrixXd tmp = MatrixXd::Zero(N,1);
     VectorXd d = VectorXd::Ones(T);
+    MatrixXd W = MatrixXd::Zero(N,T);
 
     while (error > tolerance){
         mu_old  = mu;
         sigma_old = sigma;
 
-        mu = Zeros;
-        for (size_t t=0; t<T; ++t){
-            mu += w(t)*w(t) * data(all, t).transpose();
-        }
-        mu /= w.sum();
+        mu = (data * (w.array().square()).matrix()).rowwise().sum() / w.sum();
 
-        sigma = MatrixXd::Zero(N,N);
-        for (size_t t=0; t<T; ++t){
-            
-            tmp = (data(all,t) - mu);
-            sigma += w(t) * w(t) * tmp * tmp.transpose();
-        }
-        sigma /= (w.transpose() * w);
+        W = (data.colwise() - mu) * w.asDiagonal();
+        sigma = W*W.transpose() / (w.array().square().sum());
 
         inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
         for (size_t t=0; t<T; ++t){
