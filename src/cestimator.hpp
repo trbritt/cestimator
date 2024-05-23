@@ -11,16 +11,10 @@
 
 */
 
-#include <cmath>
-#include <cassert>
-#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <string>
 #include <regex>
-#include <vector>
-
-#include <Eigen/Dense>
 
 #include "estimators/estimators.hpp"
 

@@ -15,6 +15,7 @@
 #include <cmath>
 #include <algorithm>
 #include <Eigen/Dense>
+#include <Eigen/Cholesky>
 #include <tuple>
 #include <iostream>
 #include <iomanip>

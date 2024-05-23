@@ -8,12 +8,6 @@
     this is the header for all of the estimators currently implemented in the programme
 
 */
-#include <vector>
-#include <cmath>
-#include <Eigen/Dense>
-#include <tuple>
-#include <iostream>
-#include <iterator>
 #include "../utils/utils.hpp"
 
 using namespace Eigen;
