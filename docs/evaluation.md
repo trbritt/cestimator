@@ -19,13 +19,35 @@ $$ \boldsymbol{\Delta}_{\boldsymbol{\alpha}} = \sum_{n,m=1}^NB_{nm}\frac{\partia
 
 $$\boldsymbol{\Gamma}_{\boldsymbol{\alpha}} = \sum_{n,m=1}^N\alpha_nB_{nm}\frac{\partial^2 g^{(m)}}{\partial\mathbf{x}\partial\mathbf{x}^\prime}|_{\mathbf{x}=\mathbf{0}} $$
 
-If the invariants are normally distributed $\mathbf{X}\sim N(\boldsymbol{\mu},\boldsymbol{\Sigma})$, which the first part of this software can tell you, then the characteristic function of the approximate objective has a closed form expression in terms of all of these parameters, which makes computing the non-central moments of the approximate objective easy!! For example, $E[\Theta_{\boldsymbol{\alpha}}] = i^{-1}\phi^\prime_{\Theta_{\boldsymbol{\alpha}}}(0)$. These expressions are extremely long, and tedious, and won't be typed out by me right now!
+If the invariants are normally distributed $\mathbf{X}\sim N(\boldsymbol{\mu},\boldsymbol{\Sigma})$, which the first part of this software can tell you, then the characteristic function of the approximate objective has a closed form expression in terms of all of these parameters, which makes computing the non-central moments of the approximate objective easy!! For example, $E[\Theta_{\boldsymbol{\alpha}}] = i^{-1}\phi^\prime_{\Theta_{\boldsymbol{\alpha}}}(0)$. 
 
-So, this now gets us from estimating the distribution of market invariants, with a few different ways, and under some assumptions now being able to determine the distribution of an objective that takes a specific allocation of these invariants. Neat!
+#### The characteristic function
+
+Defining $\mathbf{V}=\boldsymbol{\Gamma}\boldsymbol{\Sigma}$ and:
+
+$$b_{\boldsymbol{\alpha}} = \theta_{\boldsymbol{\alpha}}+\boldsymbol{\Delta}_{\boldsymbol{\alpha}}^\prime \boldsymbol{\mu} + \frac{1}{2}\boldsymbol{\mu}^\prime\boldsymbol{\Gamma}_{\boldsymbol{\alpha}}\boldsymbol{\mu}$$
+
+$$\mathbf{w}_{\boldsymbol{\alpha}}=\boldsymbol{\Delta}_{\boldsymbol{\alpha}}+\boldsymbol{\Gamma}_{\boldsymbol{\alpha}}\boldsymbol{\mu}$$
+
+
+you can show, through a massive headache and algebra, that the characteristic function of the approximate objective distribution is:
+
+$$ \phi_{\Theta_{\boldsymbol{\alpha}}}(\omega) = v^{-1/2}e^u$$
+
+$$ u(\omega) = i\omega b - \frac{1}{2}\mathbf{w}^\prime\boldsymbol{\Sigma}(\mathbb{1}-i\omega\mathbf{V})^{-1}\mathbf{w}$$
+
+$$ v(\omega) = |\mathbb{1}-i\omega\mathbf{V}|$$
+
+This now lets you take the derivatives of the characteristic function in terms of u (enter Wolfram Alpha), and allows you to put it in terms of everything you already know, albeit with some headache of symbol vomit on your screen. 
+
+Punchline: you estimated the distribution of invariants, aka obtained $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$. You can now therefore choose a combination of these invariants, and choose the benchmark (objective) against which you will rate different allocations. This will allow you determine directly the characteristic function of your objective (equivalent to PDF and CDF), and therefore its non-central moments. These non-central moments are then the final ingredients needed to evaluate various metrics of quality of the objective for that allocation, which we show ...
+
+---
+
 
 ### Indices of satisfaction
 
-I am not going to go into the entire theory of this, just the highlights. To say one allocation is "better" than another technically requires what's called strong or weak stochastic dominance. This is a huge field of itself, and so is the compromises we can come up with to instead evaluate allocations, such as indices of satisfaction. I'll cover a few here.
+... right now! I am not going to go into the entire theory of this, just the highlights. To say one allocation is "better" than another technically requires what's called strong or weak stochastic dominance. This is a huge field of itself, and so is the compromises we can come up with to instead evaluate allocations, such as indices of satisfaction. I'll cover a few here.
 
 An investor will enjoy a generic outcome of an allocation $\boldsymbol{\alpha}$ by means of their utility function $u(\psi)$, assuming the realization of the outomce $\Psi_{\boldsymbol{\alpha}}=\psi$ actually occurs. It might then make sense to weight each outcome and get an expected utility from an allocation:
 
@@ -41,7 +63,9 @@ Instead of gauging the risk of a given indec of satisfaction globally (certainty
 
 $$ A(\psi) = -\frac{\mathcal{D}^2u(\psi)}{\mathcal{D}u(\psi)}$$
 
-with $\mathcal{D}$ the derivative operator. This let's you make the approximation:
+with $\mathcal{D}$ the derivative operator. It is worth mentioning that it is more practical to parametrize $A$ instead of $u$, which is typically done by a set $(\gamma, \zeta, \eta)$ via:
+$$ A(\psi) = \frac{\psi}{\gamma\psi^2 + \zeta\psi + \eta}$$ 
+that encompasses a massive range of use cases. This let's you make the approximation:
 
 $$CE(\boldsymbol{\alpha}) \approx E[\Psi_{\boldsymbol{\alpha}}] - \frac{A(E[\Psi_{\boldsymbol{\alpha}}])}{2}Var[\Psi_{\boldsymbol{\alpha}}]$$
 
