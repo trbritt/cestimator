@@ -37,3 +37,34 @@ $$CE(\boldsymbol{\alpha}) = u^{-1}(E[u(\Psi_{\boldsymbol{\alpha}})])$$
 
 Because investors pursue the largest amount from their objectives, utility functions must be monotonically increasing, which implies that this inverse is always defined (and also increasing). If you wanted to get crazy with this, you can show that this utility function if the cumulative distribution function of the investors subjective before-the-fact hunch on the result of his investments :exploding_head:. That also reduces the certainty-equivalent to the quantile of this subjective distribution with a confidence level being the expected subjective grade.
 
+Instead of gauging the risk of a given indec of satisfaction globally (certainty-equivalent is risk prone iff $u$ is convex or neutral iff $u$ is linear, etc), you'll be more inclined to be cautious of pursuing new gains, but wouldn't want to cut your losses in hopes of recovery (aka prospect theory), so we need a local measure of risk, which is indeed the *Arrow-Pratt absolute risk aversion*:
+
+$$ A(\psi) = -\frac{\mathcal{D}^2u(\psi)}{\mathcal{D}u(\psi)}$$
+
+with $\mathcal{D}$ the derivative operator. This let's you make the approximation:
+
+$$CE(\boldsymbol{\alpha}) \approx E[\Psi_{\boldsymbol{\alpha}}] - \frac{A(E[\Psi_{\boldsymbol{\alpha}}])}{2}Var[\Psi_{\boldsymbol{\alpha}}]$$
+
+where chances are you don't know these moments exactly, but you can compute now by estimation from the gamma approximation above and the location and dispersion estimators you computed using the `Cestimator::Estimator` classes ;)
+
+You could instead also likewise enforce the idea that your losses should not exceed some threshold $L$ with some level of confidence $c$:
+
+$$\mathbb{P}[w_T-W_{T+\tau} < L] \ge c$$
+
+which leads you to the value at risk index of satisfaction:
+
+$$VaR_c(\boldsymbol{\alpha}) = - Q_{\Psi_{\boldsymbol{\alpha}}}(1-c)$$
+
+For a generic allocation, the Cornish-Fisher expansion lets you evaluate the quantile in terms of the quantile of the standard normal distribution $z(p)=\sqrt{2}\mathrm{erf}^{-1}(2p-1)$:
+
+$$ Q_{\Psi_{\boldsymbol{\alpha}}}(1-c) \approx A_{\boldsymbol{\alpha}} + B_{\boldsymbol{\alpha}}z(1-c)+C_{\boldsymbol{\alpha}}z^2(1-c)$$
+
+$$A = E[\Psi_{\boldsymbol{\alpha}}] - \frac{E[\Psi_{\boldsymbol{\alpha}}^3]-3E[\Psi_{\boldsymbol{\alpha}}^2]E[\Psi_{\boldsymbol{\alpha}}]+2E[\Psi_{\boldsymbol{\alpha}}]^3}{6\left(E[\Psi_{\boldsymbol{\alpha}}^2] - E[\Psi_{\boldsymbol{\alpha}}]^2\right)}$$
+
+$$B=\sqrt{E[\Psi_{\boldsymbol{\alpha}}^2]-E[\Psi_{\boldsymbol{\alpha}}]^2}$$
+
+$$C = \frac{E[\Psi_{\boldsymbol{\alpha}}^3] - 3E[\Psi_{\boldsymbol{\alpha}}^2]E[\Psi_{\boldsymbol{\alpha}}]+2E[\Psi_{\boldsymbol{\alpha}}]^3}{6(E[\Psi_{\boldsymbol{\alpha}}^2]-E[\Psi_{\boldsymbol{\alpha}}]^2)}$$
+
+with these terms being evaluated via derivatives of the characteristic function:
+
+$$i^kE[\Psi_{\boldsymbol{\alpha}}^k] = \frac{d^k\phi_{\Psi_{\boldsymbol{\alpha}}}(\omega)}{d\omega^k}\bigg|_{\omega=0}$$
