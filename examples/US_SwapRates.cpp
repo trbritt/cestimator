@@ -16,6 +16,10 @@ int main(int argc, char *argv[]) {
         std::cerr << "Incorrect number of command line arguments passed to programme. Ending" << std::endl;
         return 1;
     } 
+    
+    Eigen::initParallel();
+    Eigen::setNbThreads(6);
+    
     std::string fname = std::string(argv[1]);
 
     Cestimator::Utils::banner(fname);
@@ -36,34 +40,21 @@ int main(int argc, char *argv[]) {
     timers[0].stop();
 
     Cestimator::Estimator::set_data(X);
-
-    timers[1].start();
     Cestimator::non_parametric np;
-    np.name = timers[1].name;
-    np.run();
-    np.print();
-    timers[1].stop();
-
-    timers[2].start();
     Cestimator::shrinkage shr;
-    shr.name = timers[2].name;
-    shr.run();
-    shr.print();
-    timers[2].stop();
-
-    timers[3].start();
     Cestimator::maximum_likelihood mle;
-    mle.name = timers[3].name;
-    mle.run();
-    mle.print();
-    timers[3].stop();
-
-    timers[4].start();
     Cestimator::robust rb;
-    rb.name = timers[4].name;
-    rb.run();
-    rb.print();
-    timers[4].stop();
+
+    std::vector<Cestimator::Estimator*> estimators = {&np, &shr, &mle, &rb};
+    int i=0;
+    for ( auto est : estimators){
+        timers[i+1].start();
+        est->name = timers[i+1].name;
+        est->run();
+        est->print();
+        timers[i+1].stop();
+        ++i;
+    }
 
     #ifdef __VISUALIZER
     int dim1=0, dim2=2;

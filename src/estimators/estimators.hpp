@@ -38,7 +38,7 @@ namespace Cestimator{
                 mu_no_par = Utils::mean(data) ;
                 sigma_no_par = Utils::covariance(data);
             }
-            inline void print(){
+            virtual inline void print(){
                 size_t num_spaces = std::max(0, static_cast<int>(15-name.length()));
                 std::string padding(num_spaces, ' ');
 
@@ -55,6 +55,10 @@ namespace Cestimator{
                 std::cout << "\n" << std::endl;
             };
             virtual int run() noexcept = 0 ; //pure virtual initialization, no one can inheret unless they impl run. label as noexcept since this should not throw any issues
+
+            // To prevent slicing and allow vector of all estimators by reference
+            Estimator(const Estimator&) = default;
+            Estimator& operator=(const Estimator&) = default;
     };
 
     typedef std::tuple<VectorXd, MatrixXd> Result;
