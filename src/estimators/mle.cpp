@@ -104,7 +104,7 @@ int Cestimator::maximum_likelihood::run() noexcept{
             mu = (data * (w.array().square()).matrix()).rowwise().sum() / w.sum();
             W = (data.colwise() - mu) * w.asDiagonal();
             sigma = W*W.transpose() / (w.array().square().sum());
-
+            x_c = data.colwise() - mu;
             inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
             ma2 = (x_c.transpose() * inv_sigma * x_c).rowwise().sum();
             w = (nu+N)/(nu + ma2.array());
