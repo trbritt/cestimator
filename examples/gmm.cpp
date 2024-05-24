@@ -1,10 +1,15 @@
 #include "cestimator.hpp"
 
+
+
 int main(int argc, char *argv[]) {
     if ( argc!=2 ) {
         std::cerr << "Incorrect number of command line arguments passed to programme. Ending" << std::endl;
         return 1;
     } 
+    Eigen::initParallel();
+    Eigen::setNbThreads(6);
+    
     std::string fname = std::string(argv[1]);
     Cestimator::Utils::banner(fname);
     std::vector<Cestimator::Utils::Timer> timers(2);
