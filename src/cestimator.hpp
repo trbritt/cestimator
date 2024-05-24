@@ -17,7 +17,7 @@
 #include <regex>
 
 #include "estimators/estimators.hpp"
-
+#include "evaluators/evaluators.hpp"
 using namespace Eigen;
 
 template<typename M>
