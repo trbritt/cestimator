@@ -1,6 +1,9 @@
 # Cestimator
 ![](./cestimator.png)
 
+![example branch parameter](https://github.com/trbritt/cestimator/actions/workflows/.github.yml/badge.svg?branch=development)
+![](https://app.travis-ci.com/trbritt/cestimator.svg?token=iXZFDWLUxwEkrS9zsVhq&branch=development)
+
 This is a first pass at my implementation of estimators of distributions. This will highlight a few different types of estimation that encompass a large class of realistic distribution, specifically elliptically distributed realisations of a random variable.
 
 The goal is to show how these estimations perform for different regimes of data quality and covariance. 
