@@ -14,10 +14,11 @@ With prices being represented by some function of the market invariants $g$, we 
 
 $$ \Psi_{\boldsymbol{\alpha}}\approx\Theta_{\boldsymbol{\alpha}} = \theta_{\boldsymbol{\alpha}} + \boldsymbol{\Delta}^\prime_{\boldsymbol{\alpha}}\mathbf{X} + \frac{1}{2}\mathbf{X}^\prime\boldsymbol{\Gamma}_{\boldsymbol{\alpha}}\mathbf{X}$$
 
-$$ \theta_{\boldsymbol{\alpha}} = \sum_{n=1}^N\alpha_n a_n + \sum_{n,m=1}^N\alpha_nB_{nm}g^{(m)}(\mathbf{0}) $$
-$$ \boldsymbol{\Delta}_{\boldsymbol{\alpha}} = \sum_{n,m=1}^NB_{nm}\frac{\partial g^{(m)}}{\partial\mathbf{x}}|_{\mathbf{x}=\mathbf{0}}$$
+$$ \theta_{\boldsymbol{\alpha}}=\Sigma^N_{n=1}\alpha_n a_n + \Sigma^N_{n,m=1}\alpha_nB_{nm}g^{(m)}(\mathbf{0})$$
 
-$$\boldsymbol{\Gamma}_{\boldsymbol{\alpha}} = \sum_{n,m=1}^N\alpha_nB_{nm}\frac{\partial^2 g^{(m)}}{\partial\mathbf{x}\partial\mathbf{x}^\prime}|_{\mathbf{x}=\mathbf{0}} $$
+$$ \boldsymbol{\Delta}_ {\boldsymbol{\alpha}}=\Sigma^N _ {n,m=1} B_ {nm}\frac{\partial g^{(m)}}{\partial\mathbf{x}}|_ {\mathbf{x}=\mathbf{0}}$$
+
+$$\boldsymbol{\Gamma}_ {\boldsymbol{\alpha}} = \sum_{n,m=1}^N\alpha_nB_{nm}\frac{\partial^2 g^{(m)}}{\partial\mathbf{x}\partial\mathbf{x}^\prime}|_ {\mathbf{x}=\mathbf{0}} $$
 
 If the invariants are normally distributed $\mathbf{X}\sim N(\boldsymbol{\mu},\boldsymbol{\Sigma})$, which the first part of this software can tell you, then the characteristic function of the approximate objective has a closed form expression in terms of all of these parameters, which makes computing the non-central moments of the approximate objective easy!! For example, $E[\Theta_{\boldsymbol{\alpha}}] = i^{-1}\phi^\prime_{\Theta_{\boldsymbol{\alpha}}}(0)$. 
 
