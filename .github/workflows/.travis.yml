@@ -1,21 +1,31 @@
-language: cpp
+language: cpp 
 dist: bionic
 compiler: gcc
-
-install:
-  - sudo apt update
-  - sudo apt install -y libeigen3-dev libmgl-dev
-
+os: linux
+sudo: true
+env:
+    - BUILD_TYPE=Debug
 
 branches:
   only:
     - development
     - master
 
-jobs:
-  include:
-    - stage: build
-      script:
-        - ./configure --with-visualization
-        - make
-        - make examples
+# default gcc for Ubuntu Focal is v9, upgraded to v10 here
+# It increases build time by ~1 min
+addons:
+        apt:
+              sources:
+                  - sourceline: “ppa:ubuntu-toolchain-r/test”
+              packages:
+                  - gcc-13
+                  - g++-13
+                  - libeigen3-dev
+                  - libmgl-dev
+install:
+# /usr/bin/gcc points to an older compiler on Linux.
+- if [ "$CXX" = "g++" ]; then export CXX="g++-13" CC="gcc-13"; fi
+script: 
+  - ./configure --with-visualization
+  - make
+  - make examples
