@@ -35,7 +35,7 @@ jobs:
     - name: Checkout this commit
       uses: actions/checkout@v2
     - name: Run style checks
-      uses: dalpapa/actions-uncrustify@v1
+      uses: Dal-Papa/actions-uncrustify@v1.2
       with: 
         configPath: 'ucfy.cfg'
 
