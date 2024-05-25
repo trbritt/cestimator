@@ -4,20 +4,18 @@ compiler: gcc
 
 install:
   - sudo apt update
-  - sudo apt install libeigen3-dev libmgl-dev
+  - sudo apt install -y libeigen3-dev libmgl-dev
 
-script:
-  - ./configure --with-visualization
-  - make
-  - make examples
 
-on: 
-  push
-  pull_request:
-    branches:
-      - development
-      - master
+branches:
+  only:
+    - development
+    - master
 
 jobs:
-  install
-  script
+  include:
+    - stage: build
+      script:
+        - ./configure --with-visualization
+        - make
+        - make examples
