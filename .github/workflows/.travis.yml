@@ -11,4 +11,13 @@ script:
   - make
   - make examples
 
-on: push
+on: 
+  push
+  pull_request:
+    branches:
+      - development
+      - master
+
+jobs:
+  install
+  script
