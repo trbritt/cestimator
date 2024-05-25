@@ -25,7 +25,7 @@ endef
 
 .PHONY: all checkdirs clean
 
-all: checkdirs lib/libcestimator.so
+all: checkdirs format lib/libcestimator.so 
 
 lib/libcestimator.so: $(OBJ)
 	$(CXX) $^ -shared -o $@ $(LDFLAGS) $(LDLIBS)
@@ -33,6 +33,16 @@ lib/libcestimator.so: $(OBJ)
 checkdirs: $(BUILD_DIR)
 
 examples: $(OBJ_EXES) lib/libcestimator.so
+
+format:
+	@uncrustify -c ucfy.cfg --no-backup ./src/**/*.hpp ./src/**/*.cpp
+
+tests: tests/run_tests.x
+
+tests/run_tests.x:
+	@cmake tests -B./tests
+	@make -C tests
+	tests/run_tests.x
 	
 bin/examples/%.x: examples/%.cpp
 	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -I./src $^ -o $@ $(LDFLAGS) -L./lib -lcestimator $(LDLIBS)

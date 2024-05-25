@@ -10,5 +10,5 @@ include_directories(${EIGEN_INCLUDE_DIR})
 find_package(Threads)
 
 # Link runTests with what we want to test and the GTest and pthread library
-add_executable(runTests.x test_inv.cpp)
-target_link_libraries(runTests.x ${GTEST_LIBRARIES} pthread Eigen3::Eigen)
+add_executable(run_tests.x test_inv.cpp run_tests.cpp)
+target_link_libraries(run_tests.x ${GTEST_LIBRARIES} pthread Eigen3::Eigen)
