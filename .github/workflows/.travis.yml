@@ -1,0 +1,12 @@
+language: cpp
+dist: bionic
+compiler: gcc
+
+install:
+  - sudo apt update
+  - sudo apt install libeigen3-dev libmgl-dev
+
+script:
+  - ./configure --with-visualization
+  - make
+  - make examples
