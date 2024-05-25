@@ -1,0 +1,44 @@
+name: cestimator CI
+
+on:
+  push:
+    branches:
+      - development
+      - master
+  pull_request:
+    branches:
+      - development
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_TYPE: Debug
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up GCC-13
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt update
+          sudo apt install gcc-13 g++-13 -y
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 60
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 60
+          sudo update-alternatives --set gcc /usr/bin/gcc-13
+          sudo update-alternatives --set g++ /usr/bin/g++-13
+
+      - name: Install dependencies
+        run: sudo apt install -y libeigen3-dev libmgl-dev
+
+      - name: Configure
+        run: ./configure --with-visualization
+
+      - name: Build
+        run: make
+
+      - name: Build examples
+        run: make examples
