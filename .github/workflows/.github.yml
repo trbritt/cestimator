@@ -11,6 +11,22 @@ on:
       - master
 
 jobs:
+  cppcheck:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_TYPE: Debug
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up cppcheck
+        run: sudo apt install -y cppcheck
+
+      - name: Verify
+        run: cppcheck src/**/*.cpp --force
+        
   build:
     runs-on: ubuntu-latest
 
@@ -44,3 +60,4 @@ jobs:
 
       - name: Build examples
         run: make examples
+  
