@@ -52,19 +52,6 @@ static inline std::vector<T> quantile(const std::vector<T>& inData, const std::v
     return quantiles;
 }
 
-std::vector<double> matrix2vector(MatrixXd& x){
-    MatrixXd xx = x;
-    int N, M;
-    N = x.rows();
-    M = x.cols();
-
-    std::vector<double> data;
-    xx.resize(1, N*M);
-    for(int i=0; i<N*M; ++i){
-        data.push_back(xx(i));
-    }
-    return data;
-}
 
 int Cestimator::maximum_likelihood::run() noexcept{
 
@@ -78,7 +65,7 @@ int Cestimator::maximum_likelihood::run() noexcept{
 
     sigma = MatrixXd::Zero(N,N);
 
-    std::vector<double> flattened = matrix2vector(data);
+    std::vector<double> flattened = Cestimator::Utils::matrix2vector(data);
     std::vector<double> quant = quantile<double>(flattened, {0.75, 0.25});
 
     const double tolerance = abs(0.01*(quant[1]-quant[0]));

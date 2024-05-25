@@ -49,5 +49,19 @@ namespace Cestimator{
             );
             return omega;
         }
+
+        std::vector<double> matrix2vector(MatrixXd& x){
+            MatrixXd xx = x;
+            int N, M;
+            N = x.rows();
+            M = x.cols();
+
+            std::vector<double> data;
+            xx.resize(1, N*M);
+            for(int i=0; i<N*M; ++i){
+                data.push_back(xx(i));
+            }
+            return data;
+        }
     }
 }

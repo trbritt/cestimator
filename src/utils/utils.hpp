@@ -55,6 +55,7 @@ namespace Cestimator{
             static const std::string BOLD;
             static const std::string UNDERLINE;
         };
+        std::vector<double> matrix2vector(MatrixXd& x);
         #ifdef __VISUALIZER
         class Visualizer {
             public:

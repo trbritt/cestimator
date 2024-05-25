@@ -4,7 +4,7 @@ CPPFLAGS=-O3 -fPIC -fopenmp -Wall -std=c++17 -march=native -fno-math-errno
 LDFLAGS=-lm -lz @ldflags@
 DFLAGS=@dflags@
 
-MODULES   := utils estimators
+MODULES   := utils estimators evaluators
 SRC_DIR   := $(addprefix ./src/,$(MODULES))
 BUILD_DIR := $(addprefix ./bin/,$(MODULES))
 EXEDIR    := ./examples
@@ -32,7 +32,7 @@ lib/libcestimator.so: $(OBJ)
 
 checkdirs: $(BUILD_DIR)
 
-examples: $(OBJ_EXES)
+examples: $(OBJ_EXES) lib/libcestimator.so
 	
 bin/examples/%.x: examples/%.cpp
 	$(CXX) $(CPPFLAGS) $(DFLAGS) $(INCL) -I./src $^ -o $@ $(LDFLAGS) -L./lib -lcestimator $(LDLIBS)
