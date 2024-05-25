@@ -11,6 +11,8 @@ branches:
     - development
     - master
 
+on:
+  push
 # default gcc for Ubuntu Focal is v9, upgraded to v10 here
 # It increases build time by ~1 min
 addons:
