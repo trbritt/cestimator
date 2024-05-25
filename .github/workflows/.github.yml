@@ -33,11 +33,13 @@ jobs:
     name: Conform all to consistent style
     steps:
     - name: Checkout this commit
-      uses: actions/checkout@v2
-    - name: Run style checks
-      uses: Dal-Papa/actions-uncrustify@v1.2
-      with: 
-        configPath: 'ucfy.cfg'
+      uses: actions/checkout@v3
+
+    - name: Set up uncrustify
+      run: sudo apt install -y uncrustify
+      
+    - name: Verify
+      run: uncrustify -c ucfy.cfg --check ./src/**/*.hpp ./src/**/*.cpp
 
   build:
     runs-on: ubuntu-latest
