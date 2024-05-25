@@ -1,99 +1,98 @@
 /*
-    author: Tristan Britt
-    email: hello@tbritt.xyz
-    
-    file: estimators.hpp
-    license: gpl_v3
-
-    this is the header for all of the estimators currently implemented in the programme
-
-*/
+ *  author: Tristan Britt
+ *  email: hello@tbritt.xyz
+ *
+ *  file: estimators.hpp
+ *  license: gpl_v3
+ *
+ *  this is the header for all of the estimators currently implemented in the programme
+ *
+ */
 #include "../utils/utils.hpp"
 
 using namespace Eigen;
 
-namespace Cestimator{
+namespace Cestimator {
+class Estimator {
+protected:
+   static MatrixXd data, sigma_no_par;
+   static VectorXd mu_no_par;
+   static int N, T;
 
-    class Estimator {
-            
-        protected:
-            static MatrixXd data,sigma_no_par;
-            static VectorXd mu_no_par;
-            static int N, T;
+public:
 
-        public:
+   VectorXd mu;
+   MatrixXd sigma;
 
-            VectorXd mu;
-            MatrixXd sigma;
+   std::string name;
+   Estimator() {
+   };
+   static inline void set_data(MatrixXd& arr) {
+      data = arr;
 
-            std::string name;
-            Estimator(){};
-            static inline void set_data(MatrixXd& arr){
+      N = data.rows();
+      T = data.cols();
 
-                data = arr;
+      mu_no_par    = Utils::mean(data);
+      sigma_no_par = Utils::covariance(data);
+   }
 
-                N = data.rows();
-                T = data.cols();
+   virtual inline void print() {
+      size_t      num_spaces = std::max(0, static_cast <int>(15 - name.length()));
+      std::string padding(num_spaces, ' ');
 
-                mu_no_par = Utils::mean(data) ;
-                sigma_no_par = Utils::covariance(data);
-            }
-            virtual inline void print(){
-                size_t num_spaces = std::max(0, static_cast<int>(15-name.length()));
-                std::string padding(num_spaces, ' ');
+      int ndims = mu.size();
+      std::cout << Cestimator::Utils::colors::OKCYAN << name + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
 
-                int ndims = mu.size();
-                std::cout << Cestimator::Utils::colors::OKCYAN << name + padding << "\t\t" << "μ" << "\t\t" << "Σ" << Cestimator::Utils::colors::ENDC << std::endl;
+      for (int i = 0; i < ndims; ++i) {
+         std::cout << "\t\t" << mu(i) << "\t";
+         for (int j = 0; j < ndims; ++j) {
+            std::cout << sigma(i, j) << " ";
+         }
+         std::cout << std::endl;
+      }
+      std::cout << "\n" << std::endl;
+   };
+   virtual int run() noexcept = 0;           //pure virtual initialization, no one can inheret unless they impl run. label as noexcept since this should not throw any issues
 
-                for (int i=0; i<ndims; ++i){
-                    std::cout << "\t\t" <<  mu(i) << "\t";
-                    for (int j=0; j<ndims; ++j){
-                        std::cout << sigma(i,j) << " ";
-                    }
-                    std::cout << std::endl;
-                }
-                std::cout << "\n" << std::endl;
-            };
-            virtual int run() noexcept = 0 ; //pure virtual initialization, no one can inheret unless they impl run. label as noexcept since this should not throw any issues
+   // To prevent slicing and allow vector of all estimators by reference
+   Estimator(const Estimator&)            = default;
+   Estimator& operator=(const Estimator&) = default;
+};
 
-            // To prevent slicing and allow vector of all estimators by reference
-            Estimator(const Estimator&) = default;
-            Estimator& operator=(const Estimator&) = default;
-    };
+typedef std::tuple <VectorXd, MatrixXd> Result;
 
-    typedef std::tuple<VectorXd, MatrixXd> Result;
+class non_parametric : public Estimator {
+public:
+   int run() noexcept override;
+};
 
-    class non_parametric: public Estimator{
-        public:
-            int run() noexcept override; 
-    };
+class shrinkage : public Estimator {
+public:
+   int run() noexcept override;
+};
 
-    class shrinkage: public Estimator{
-        public:
-            int run() noexcept override;
-    };
+class maximum_likelihood : public Estimator {
+public:
+   int run() noexcept override;
+};
 
-    class maximum_likelihood: public Estimator{
-        public:
-            int run() noexcept override;
-    };
+class robust : public Estimator {
+public:
+   int run() noexcept override;
+};
 
-    class robust: public Estimator{
-        public:
-            int run() noexcept override;
-    };
+class GMM : public Estimator {
+public:
+   int n_features, n_term = -1;
+   MatrixXd mu, regularization;
+   std::vector <MatrixXd> sigma;
+   inline void set_data(int nf = 3) {
+      n_features = nf;
+   }
 
-    class GMM: public Estimator {
-        public:
-            int n_features, n_term=-1;
-            MatrixXd mu, regularization;
-            std::vector<MatrixXd> sigma;
-            inline void set_data(int nf=3){
-                n_features = nf;
-            }
-            int run() noexcept override;
-            VectorXd predict(VectorXd& arr);
-            void print();
-    };
-        
+   int run() noexcept override;
+   VectorXd predict(VectorXd& arr);
+   void print();
+};
 }
