@@ -25,7 +25,7 @@ endef
 
 .PHONY: all checkdirs clean
 
-all: checkdirs format lib/libcestimator.so 
+all: checkdirs lib/libcestimator.so 
 
 lib/libcestimator.so: $(OBJ)
 	$(CXX) $^ -shared -o $@ $(LDFLAGS) $(LDLIBS)
