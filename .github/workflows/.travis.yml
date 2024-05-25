@@ -10,3 +10,5 @@ script:
   - ./configure --with-visualization
   - make
   - make examples
+
+on: push
