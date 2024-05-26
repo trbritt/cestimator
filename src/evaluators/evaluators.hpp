@@ -1,12 +1,14 @@
 #include <optional>
 #include <Eigen/Dense>
 #include <iterator>
+#include <iostream>
+
 using namespace Eigen;
 
 namespace Cestimator {
 class Evaluator {
 public:
-   enum Distribution { Normal, Uniform, StudentT };
+   enum Distribution { Normal = 0, Uniform = 1, StudentT = 2 };
    Distribution dist;
 
    static MatrixXd data, sigma;

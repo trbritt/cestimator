@@ -23,40 +23,37 @@ MatrixXd Evaluator::generator(const std::optional <int> nu) {
    MatrixXd inv_sigma = sigma.llt().solve(MatrixXd::Identity(N, N));
    //create z-score with inv_sigma * (data-mu)
    MatrixXd z_c = data.colwise() - mu;
-   std::function <double(double)> _generator = [&dof](double x) {
-                                                  return 0.0;
-                                               };
-   switch (dist) {
-   case Uniform:
-      _generator = [&dof](double x) {
-                      return (x >= 0 && x <= 1) ? gamma(static_cast <double>(N) / 2 + 1) * pow(M_PI, -static_cast <double>(N) / 2)  : 0.0;
-                   };
+   switch (static_cast<int>(dist)) {
 
-   case Normal:
-      _generator = [&dof](double x) {
+   case 0:
+      return z_c.unaryExpr([&dof](double x) {
                       return exp(-0.5 * x);
-                   };
+                   });
+   case 1:
+      return z_c.unaryExpr([&dof](double x) {
+                      return (x >= 0 && x <= 1) ? gamma(static_cast <double>(N) / 2 + 1) * pow(M_PI, -static_cast <double>(N) / 2)  : 0.0;
+                   });
 
-   case StudentT:
-      _generator = [&dof](double x) {
+   case 2:
+      return z_c.unaryExpr([&dof](double x) {
                       return pow((1 + x / dof), -0.5 * (dof + static_cast <double>(N))) * gamma(0.5 * (dof + static_cast <double>(N))) / (gamma(0.5 * dof) * pow(dof * M_PI, 0.5 * N));
-                   };
-
-   default:
-      _generator = [](double x) {
-                      return 1.0;
-                   };
+                   });
    }
    ;
-   return z_c.unaryExpr(_generator);
 };
 MatrixXd Evaluator::finite_difference(MatrixXd& gen, int order) {
    //we compute finite differences along ech dimension of the generated array, and evaluate at 0. the fdcoeffF function determines the coefficient of every irregularly spaced data point in the finite differences approximation up to order k, so we just sum the values then
    MatrixXd coeffs = MatrixXd::Zero(N, T);
    for (int n = 0; n < N; ++n) {
-      std::vector <double> flattened = matrix2vector(data);
-      std::vector <double> coef      = fdcoeffF(order, 0.0, flattened);
-      coeffs.row(n) = MatrixXd::Map(coef.data(), T, 1);
+      MatrixXd row = data.row(n);
+      std::vector <double> flattened = matrix2vector(row);
+      std::vector <double> coef      = fdcoeffF(order, 0, flattened);
+      for (auto i: coef){
+         std::cout << i << " ";
+      }
+      std::cout << std::endl;
+      Matrix<double, Dynamic, Dynamic> test = Map<Matrix<double, Dynamic, Dynamic>>(coef.data(), 1, T);
+      coeffs.row(n) = test;
    }
    return gen.cwiseProduct(coeffs).rowwise().sum();
 }
