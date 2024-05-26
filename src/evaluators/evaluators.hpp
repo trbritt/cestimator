@@ -27,6 +27,6 @@ public:
    };
    MatrixXd generator(const std::optional <int> nu = std::nullopt);
    MatrixXd finite_difference(MatrixXd& gen, int order);
-   std::vector <double> fdcoeffF(int k, double xbar, const std::vector <double>& x);
+   MatrixXd fdcoeffF(int k, double xbar, const VectorXd &x, bool fullC = false);
 };
 }

@@ -45,63 +45,51 @@ MatrixXd Evaluator::finite_difference(MatrixXd& gen, int order) {
    //we compute finite differences along ech dimension of the generated array, and evaluate at 0. the fdcoeffF function determines the coefficient of every irregularly spaced data point in the finite differences approximation up to order k, so we just sum the values then
    MatrixXd coeffs = MatrixXd::Zero(N, T);
    for (int n = 0; n < N; ++n) {
-      MatrixXd row = data.row(n);
-      std::vector <double> flattened = matrix2vector(row);
-      std::vector <double> coef      = fdcoeffF(order, 0, flattened);
-      for (auto i: coef){
-         std::cout << i << " ";
-      }
-      std::cout << std::endl;
-      Matrix<double, Dynamic, Dynamic> test = Map<Matrix<double, Dynamic, Dynamic>>(coef.data(), 1, T);
-      coeffs.row(n) = test;
+      coeffs.row(n) = fdcoeffF(order, 0.0, data.row(n));
    }
    return gen.cwiseProduct(coeffs).rowwise().sum();
 }
 
 //taken from https://faculty.washington.edu/rjl/fdmbook/matlab/fdcoeffF.m
-std::vector <double> Evaluator::fdcoeffF(int k, double xbar, const std::vector <double>& x) {
-   int n = x.size();
-   if (k >= n) {
-      throw std::invalid_argument("length(x) must be larger than k");
-   }
+MatrixXd Evaluator::fdcoeffF(int k, double xbar, const VectorXd &x, bool fullC ) {
+    int n = x.size() - 1;
+    if (k > n) {
+        throw std::invalid_argument("*** len(x) must be larger than k");
+    }
 
-   int m = k;
-   std::vector <std::vector <double> > C(n, std::vector <double>(m + 1, 0.0));
-   double c1 = 1.0;
-   double c4 = x[0] - xbar;
-   C[0][0] = 1.0;
+    int m = k;  // for consistency with Fornberg's notation
+    double c1 = 1.0;
+    double c4 = x(0) - xbar;
+    MatrixXd C = MatrixXd::Zero(n + 1, m + 1);
+    C(0, 0) = 1.0;
 
-   for (int i = 0; i < n - 1; ++i) {
-      int    i1 = i + 1;
-      int    mn = std::min(i, m);
-      double c2 = 1.0;
-      double c5 = c4;
-      c4 = x[i1] - xbar;
-      for (int j = 0; j <= i; ++j) {
-         int    j1 = j + 1;
-         double c3 = x[i1] - x[j];
-         c2 *= c3;
-         if (j == i) {
-            for (int s = mn; s >= 1; --s) {
-               int s1 = s + 1;
-               C[i1][s1] = c1 * (s * C[i1 - 1][s1 - 1] - c5 * C[i1 - 1][s1]) / c2;
+    for (int i = 1; i <= n; ++i) {
+        int mn = std::min(i, m);
+        double c2 = 1.0;
+        double c5 = c4;
+        c4 = x(i) - xbar;
+
+        for (int j = 0; j < i; ++j) {
+            double c3 = x(i) - x(j);
+            c2 = c2 * c3;
+            if (j == i - 1) {
+                for (int s = mn; s > 0; --s) {
+                    C(i, s) = c1 * (s * C(i - 1, s - 1) - c5 * C(i - 1, s)) / c2;
+                }
+                C(i, 0) = -c1 * c5 * C(i - 1, 0) / c2;
             }
-            C[i1][0] = -c1 * c5 * C[i1 - 1][0] / c2;
-         }
-         for (int s = mn; s >= 1; --s) {
-            int s1 = s + 1;
-            C[j][s1] = (c4 * C[j][s1] - s * C[j][s1 - 1]) / c3;
-         }
-         C[j][0] = c4 * C[j][0] / c3;
-      }
-      c1 = c2;
-   }
+            for (int s = mn; s > 0; --s) {
+                C(j, s) = (c4 * C(j, s) - s * C(j, s - 1)) / c3;
+            }
+            C(j, 0) = c4 * C(j, 0) / c3;
+        }
+        c1 = c2;
+    }
 
-   std::vector <double> c(n);
-   for (int i = 0; i < n; ++i) {
-      c[i] = C[i][m];
-   }
-
-   return c;
+    if (fullC) {
+        return C;
+    } else {
+        return C.col(m); // last column of C
+    }
 }
 }
