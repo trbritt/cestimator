@@ -59,8 +59,8 @@ int main(int argc, char *argv[]) {
     Cestimator::Evaluator eval{Cestimator::Evaluator::Distribution::Normal};
     eval.set_data(X, rb.mu, rb.sigma);
     MatrixXd g = eval.generator();
-    VectorXd f1 = eval.differentiate(g, 0, 5);
-    // std::cout  << f1 << std::endl; 
+    MatrixXd f1 = eval.differentiate(g, 0, 71);
+    std::cout  << f1 << std::endl; 
 
     #ifdef __VISUALIZER
     int dim1=0, dim2=2;

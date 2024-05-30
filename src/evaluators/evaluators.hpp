@@ -2,6 +2,9 @@
 #include <Eigen/Dense>
 #include <iterator>
 #include <iostream>
+#include <set>
+#include <map>
+#include <algorithm>
 
 using namespace Eigen;
 
