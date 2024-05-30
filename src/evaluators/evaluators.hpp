@@ -25,8 +25,9 @@ public:
       N     = x.rows();
       T     = x.cols();
    };
+   VectorXd pad_vector(const VectorXd& d, int pad);
+   VectorXd lanczos_kernel(int winlen);
    MatrixXd generator(const std::optional <int> nu = std::nullopt);
-   MatrixXd finite_difference(MatrixXd& gen, int order);
-   MatrixXd fdcoeffF(int k, double xbar, const VectorXd &x, bool fullC = false);
+   VectorXd differentiate(const MatrixXd& gen, int dimension, int winlen);
 };
 }
