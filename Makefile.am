@@ -4,7 +4,7 @@ CPPFLAGS=-O3 -fPIC -fopenmp -Wall -std=c++17 -march=native -fno-math-errno
 LDFLAGS=-lm -lz @ldflags@
 DFLAGS=@dflags@
 
-MODULES   := utils estimators evaluators
+MODULES   := utils estimators evaluators optimizers
 SRC_DIR   := $(addprefix ./src/,$(MODULES))
 BUILD_DIR := $(addprefix ./bin/,$(MODULES))
 EXEDIR    := ./examples
