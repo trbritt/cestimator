@@ -17,6 +17,6 @@ class Optimizer {
     Optimizer(enum Classifier c){
         classifier = c;
     }
-    VectorXd generate_weights(VectorXd returns, MatrixXd covariance);
+    MatrixXd generate_frontier(VectorXd returns, MatrixXd covariance, int n_portfolios);
 };
 }

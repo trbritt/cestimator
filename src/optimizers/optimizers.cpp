@@ -1,4 +1,5 @@
 #include "optimizers.hpp"
+#include "eiquadprog.hpp"
 #include <random>
 std::random_device rd;     // Only used once to initialise (seed) engine
 std::mt19937 rng(rd());  
@@ -6,17 +7,41 @@ std::uniform_int_distribution<int> uni(0,1); // Guaranteed unbiased
 
 namespace Cestimator {
 
-    VectorXd Optimizer::generate_weights(VectorXd returns, MatrixXd covariance){
+    MatrixXd Optimizer::generate_frontier(VectorXd returns, MatrixXd covariance, int n_portfolios){
         int n_assets = returns.size();
-        VectorXd weights = VectorXd::Zero(n_assets);
+        MatrixXd weights = MatrixXd::Zero(n_portfolios, n_assets);
         switch ( static_cast<int>(classifier))
         {
         case 0: //random weights
-            for (int i = 0; i<n_assets; ++i){
-                weights(i) = uni(rng);
+            for (int p=0; p<n_portfolios; ++p){
+                for (int i = 0; i<n_assets; ++i){
+                    weights(p, i) = uni(rng);
+                }
             }
+            
         case 1:
-            break;
+            MatrixXd G(n_assets, n_assets);//=mu*sigma
+            VectorXd g0(n_assets);//-pbar
+            MatrixXd CI = -1.0*MatrixXd::Identity(n_assets, n_assets);
+            VectorXd ci0 = VectorXd::Zero(n_assets);
+
+            MatrixXd CE = MatrixXd::Identity(n_assets, n_assets);
+            VectorXd ce0(1);
+            ce0 << -1.0; //weights sum to one constraint
+
+            std::vector<double> risks;
+            std::vector<double> profits;
+
+            for (int p=0; p<n_portfolios; ++p){
+                double mu = pow(10, 5.0*p/n_portfolios - 1.0); //log spacing of returns to query
+                G = covariance * mu;
+                g0 = -returns;
+
+                VectorXd local_weights(n_assets);
+                solve_quadprog(G, g0, CE, ce0, CI, ci0, local_weights);
+                weights.row(p) = local_weights;
+
+            }
         }
     }
 
