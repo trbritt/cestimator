@@ -17,6 +17,12 @@ namespace Cestimator {
                 for (int i = 0; i<n_assets; ++i){
                     weights(p, i) = uni(rng);
                 }
+                profile.push_back(
+                    std::make_pair(
+                        weights.row(p).dot(returns),
+                        sqrt(weights.row(p)*covariance*weights.row(p).transpose())
+                    )
+                );
             }
             
         case 1:
@@ -29,20 +35,24 @@ namespace Cestimator {
             VectorXd ce0(1);
             ce0 << -1.0; //weights sum to one constraint
 
-            std::vector<double> risks;
-            std::vector<double> profits;
-
             for (int p=0; p<n_portfolios; ++p){
                 double mu = pow(10, 5.0*p/n_portfolios - 1.0); //log spacing of returns to query
                 G = covariance * mu;
                 g0 = -returns;
 
                 VectorXd local_weights(n_assets);
-                solve_quadprog(G, g0, CE, ce0, CI, ci0, local_weights);
+                std::cout<<solve_quadprog(G, g0, CE, ce0, CI, ci0, local_weights)<<std::endl;
                 weights.row(p) = local_weights;
 
+                profile.push_back(
+                    std::make_pair(
+                        returns.dot(local_weights), //profit
+                        sqrt(local_weights.dot(covariance*local_weights)) //risk
+                    )
+                );
             }
         }
+        return weights;
     }
 
 }

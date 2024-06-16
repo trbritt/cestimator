@@ -2,9 +2,6 @@
 #include <Eigen/Dense>
 #include <iterator>
 #include <iostream>
-#include <set>
-#include <map>
-#include <algorithm>
 
 using namespace Eigen;
 
@@ -13,6 +10,7 @@ class Optimizer {
     public: 
     enum Classifier { Random = 0, Qp = 1};
     Classifier classifier;
+    std::vector<std::pair < double, double>> profile;
 
     Optimizer(enum Classifier c){
         classifier = c;
