@@ -18,6 +18,8 @@
 
 #include "estimators/estimators.hpp"
 #include "evaluators/evaluators.hpp"
+#include "optimizers/optimizers.hpp"
+
 using namespace Eigen;
 
 template <typename M>

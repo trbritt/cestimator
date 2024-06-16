@@ -35,7 +35,7 @@ checkdirs: $(BUILD_DIR)
 examples: $(OBJ_EXES) lib/libcestimator.so
 
 format:
-	@uncrustify -c ucfy.cfg --no-backup ./src/**/*.hpp ./src/**/*.cpp
+	@uncrustify -c ucfy.cfg --no-backup ./src/**/*.hpp ./src/**/*.cpp ./examples/*.cpp
 
 tests: tests/run_tests.x
 
