@@ -10,7 +10,7 @@ class Optimizer {
 public:
    enum Classifier { Random = 0, Qp = 1 };
    Classifier classifier;
-   std::vector <std::pair <double, double> > profile;
+   std::vector <std::tuple <VectorXd, double, double> > profile;
 
    Optimizer(enum Classifier c) {
       classifier = c;

@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
 
    random.generate_frontier(exp_prices, cov_prices, 100);
 
-   // for (const auto& [first, sec] : random.profile ){
-   //     std::cout << first << " " << sec << std::endl;
-   // }
-
+   for (const auto& [first, sec, third] : random.profile) {
+      std::cout << "Weights [%]:" << 100*first.transpose() << std::endl;
+      std::cout << "\t Return:" << sec << ",\tRisk:" << third << std::endl;
+   }
 
    Cestimator::Utils::goodbye();
    return 0;
