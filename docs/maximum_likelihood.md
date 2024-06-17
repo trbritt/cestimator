@@ -21,3 +21,8 @@ $$
 $$
 
 where the w's are defined in terms of the generator $w(z) = -2g^\prime(z)/g(z)$. Notice that these w's are weights $w_t = w(\text{Ma}^2(\mathbf{x}_t, \mathbf{\mu}, \mathbf{\Sigma}))$ showing the contribution of that observation to the resulting estimation.
+
+
+## Gaussian mixture model 
+
+Using the MLE framework, we can also easily describe a Gaussian mixture model to retrieve the location and dispersion of multiple sources to the data. Usage is given for an example in `gaussian_mixture.cpp` in the `examples` directory for 3 sources, but the framework applies to any number of Gaussians. We use the exectation-maximization algorithm, which you can learn more about [here](https://people.csail.mit.edu/rameshvs/content/gmm-em.pdf).
