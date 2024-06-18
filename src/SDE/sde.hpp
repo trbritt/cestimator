@@ -13,7 +13,6 @@ using namespace Eigen;
  */
 namespace Cestimator {
 namespace SDE {
-
 class BaseModel {
 public:
    BaseModel(const std::optional <bool> is_analytic = std::nullopt, std::string simulation_method = "milstein")
@@ -24,7 +23,7 @@ public:
    //evaluate the drift of the SDE at a point or along a range
    //likewise for diffusion, and since it is all 1D right now,
    //having these as vector types is ok
-   virtual VectorXd mu(const VectorXd& x, double t) const = 0;
+   virtual VectorXd mu(const VectorXd& x, double t) const    = 0;
    virtual VectorXd sigma(const VectorXd& x, double t) const = 0;
 
    VectorXd get_params() const {
@@ -35,7 +34,7 @@ public:
    }
 
    // these are all the density estimators we will override for each model
-   //because we can either evaluate these at points or vectors, 
+   //because we can either evaluate these at points or vectors,
    // we'll only need to do this for the exact density of analytic models
    //and therefore the Hermitian expansion of those forms
    virtual VectorXd exact_density(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
@@ -95,17 +94,17 @@ public:
    Density(Cestimator::SDE::BaseModel& model) : _pmodel(&model) {
    };
    //overload the call operator
-   virtual VectorXd operator() (const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
+   virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
 
-    template<typename Derived>
-    Derived* model() {
-        return dynamic_cast<const Derived*>(*_pmodel);
-    }
+   template <typename Derived>
+   Derived *model() {
+      return dynamic_cast <const Derived *>(*_pmodel);
+   }
+
 private:
    Cestimator::SDE::BaseModel *_pmodel;  //we need this template to work for all derived models.
                                          //so we'll create a pointer of the base class and then
                                          //dynamic cast as necessary later
-                                         
 };
 }
 }
