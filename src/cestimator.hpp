@@ -19,6 +19,7 @@
 #include "estimators/estimators.hpp"
 #include "evaluators/evaluators.hpp"
 #include "optimizers/optimizers.hpp"
+#include "SDE/sde.hpp"
 
 using namespace Eigen;
 

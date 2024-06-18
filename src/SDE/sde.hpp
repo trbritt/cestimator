@@ -11,6 +11,8 @@ using namespace Eigen;
 /*
  * Create abstract Model class onto which we will inherit the specific models
  */
+namespace Cestimator {
+namespace SDE {
 
 class BaseModel {
 public:
@@ -36,10 +38,17 @@ public:
    }
 
    // these are all the density estimators we will override for each model
-   virtual double exact_density(double x0, double xt, double t0, double dt)           = 0;
-   virtual double ait_sahalia_density(double x0, double xt, double t0, double dt)     = 0;
-   virtual double exact_stepping(double t, double dt, double x, double dZ)            = 0;
-   virtual VectorXd exact_stepping(double t, double dt, const VectorXd& x, double dZ) = 0;
+   //because we can either evaluate these at points or vectors, 
+   // we'll only need to do this for the exact density of analytic models
+   //and therefore the Hermitian expansion of those forms
+   virtual double exact_density(double x0, double xt, double t0, double dt) = 0;
+   virtual VectorXd exact_density(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
+
+   virtual double ait_sahalia_density(double  x0, double  xt, double  t0, double dt) = 0;
+   virtual VectorXd ait_sahalia_density(const VectorXd&  x0, const VectorXd&  xt, const VectorXd&  t0, double dt) = 0;
+
+   virtual double exact_stepping(double t, double dt, double x, double dZ) = 0;
+   virtual VectorXd exact_stepping(double t, double dt, const VectorXd& x, const VectorXd& dZ) = 0;
 
    //and if a model has no clever closed form derivative work, we default to the finite differences
    double dmu_dX(double x, double t) const {
@@ -86,3 +95,23 @@ private:
    VectorXd _params;
    bool _positive;
 };
+
+class Density {
+public:
+   Density(Cestimator::SDE::BaseModel model) : _pmodel(&model) {
+   };
+   //overload the call operators
+   virtual double operator() (double x0, double xt, double t0, double dt) = 0;
+   virtual VectorXd operator() (const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
+
+    template<typename Derived>
+    Cestimator::SDE::BaseModel model() {
+        return dynamic_cast<const Derived>(*_pmodel);
+    }
+private:
+   Cestimator::SDE::BaseModel *_pmodel;  //we need this template to work for all derived models.
+                                         //so we'll create a pointer of the base class and then
+                                         //dynamic cast as necessary later
+};
+}
+}
