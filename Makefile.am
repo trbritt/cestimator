@@ -14,7 +14,7 @@ EXES      := $(wildcard $(EXEDIR)/*.cpp)
 
 OBJ	      := $(patsubst ./src/%.cpp,./bin/%.o,$(SRC)) 
 OBJ_EXES  := $(patsubst ./examples/%.cpp,./bin/examples/%.x,$(EXES)) 
-INCL      := $(addprefix -I,$(SRC_DIR)) -I/usr/include/eigen3
+INCL      := $(addprefix -I,$(SRC_DIR)) -I/usr/include/eigen3 @iflags@
 
 vpath %.cpp $(SRC_DIR)
 

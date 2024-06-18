@@ -22,7 +22,7 @@
 #include <iterator>
 #include <chrono>
 #ifdef __VISUALIZER
-#include <mgl2/fltk.h>
+#include <matplot/matplot.h>
 #endif
 using namespace Eigen;
 
@@ -58,9 +58,8 @@ std::vector <double> matrix2vector(MatrixXd& x);
         #ifdef __VISUALIZER
 class Visualizer {
 public:
-   mglFLTK *gr;
    Visualizer() {
-      gr = new mglFLTK((mglDraw *)NULL, "Cestimator");
+      matplot::hold(matplot::on);
    };
    int scatter3d(MatrixXd& arr);
    int scatter2d(MatrixXd& arr, int dim1, int dim2);

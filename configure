@@ -651,6 +651,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+iflags
 ldflags
 dflags
 am__fastdepCXX_FALSE
@@ -3806,10 +3807,31 @@ then :
 fi
 
 if test "$with_mgl" -eq 1 ; then
-    dflags="$dflags -D__VISUALIZER"
-    ldflags="$ldflags -lmgl -lmgl-fltk"
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Building with visualization libraries" >&5
 printf "%s\n" "$as_me: Building with visualization libraries" >&6;}
+
+    if test ! -d "external"; then
+      mkdir external
+    fi
+
+    cd external
+    if test ! -d "matplotplusplus"; then
+      git clone https://github.com/alandefreitas/matplotplusplus.git
+    fi
+
+    cd matplotplusplus
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX:PATH="$(pwd)" -DMATPLOTPP_BUILD_EXAMPLES=OFF      \
+    -DMATPLOTPP_BUILD_SHARED_LIBS=ON    \
+    -DMATPLOTPP_BUILD_TESTS=OFF         \
+    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON ..
+    make -j 6
+    make install
+    cd ../../..
+    dflags="$dflags -D__VISUALIZER"
+    ldflags="$ldflags -fsanitize=undefined -L./external/matplotplusplus/build/lib -lmatplot -L./external/matplotplusplus/build/lib/Matplot++ -lnodesoup -lstdc++fs -lpng -ljpeg -ltiff -lpthread"
+    iflags="$iflags -I./external/matplotplusplus/build/include"
 fi
 
 ac_ext=c
@@ -3817,6 +3839,7 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 
 

@@ -9,6 +9,7 @@ configure~
 Makefile
 Makefile.in
 compile
+external
 
 **/*.x
 

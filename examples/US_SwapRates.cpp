@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
    for (auto est : estimators) {
       viz.ellipse(est->mu, est->sigma, dim1, dim2);
    }
-   viz.gr->Run();
+   matplot::show();
     #endif
 
    Cestimator::Utils::goodbye(timers);
