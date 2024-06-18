@@ -93,6 +93,8 @@ class Density {
 public:
    Density(Cestimator::SDE::BaseModel& model) : _pmodel(&model) {
    };
+   virtual ~Density() {
+   };
    //overload the call operator
    virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
 

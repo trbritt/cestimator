@@ -15,8 +15,8 @@ using namespace Eigen;
 using namespace matplot;
 namespace Cestimator {
 namespace Utils {
-std::vector<double> vec2stdvec(const VectorXd& a){
-   std::vector<double> vec(a.data(), a.data() + a.size()); 
+std::vector <double> vec2stdvec(const VectorXd& a) {
+   std::vector <double> vec(a.data(), a.data() + a.size());
    return vec;
 };
 
@@ -40,10 +40,10 @@ int Visualizer::scatter2d(MatrixXd& arr, int dim1, int dim2) {
 
 int Visualizer::ellipse(const VectorXd& mu, const MatrixXd& sigma, int dim1, int dim2) {
    EigenSolver <MatrixXd> sigma_solver(sigma({ dim1, dim2 }, { dim1, dim2 }));
-   VectorXd evals   = sigma_solver.eigenvalues().real();
-   MatrixXd devals  = evals.array().sqrt().matrix().asDiagonal();
-   MatrixXd evecs   = sigma_solver.eigenvectors().real();
-   int      n_angs  = 500;
+   VectorXd evals     = sigma_solver.eigenvalues().real();
+   MatrixXd devals    = evals.array().sqrt().matrix().asDiagonal();
+   MatrixXd evecs     = sigma_solver.eigenvectors().real();
+   int      n_angs    = 500;
    VectorXd ellipse_x = VectorXd::Zero(n_angs);
    VectorXd ellipse_y = VectorXd::Zero(n_angs);
 
