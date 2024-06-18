@@ -10,6 +10,13 @@ class ExactDensity : public Density {
 };
 
 template <typename Derived>
+class AitSahaliaDensity : public Density {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) {
+      return this->model <Derived>()->ait_sahalia_density(x0, xt, t0, dt);
+   }
+};
+
+template <typename Derived>
 class EulerDensity : public Density {
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) {
       VectorXd diffusion_contribution = this->model <Derived>()->sigma(x0, t0).cwiseProduct(this->model <Derived>()->sigma(x0, t0)) * 2 * dt;
