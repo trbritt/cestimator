@@ -24,11 +24,8 @@ public:
    //evaluate the drift of the SDE at a point or along a range
    //likewise for diffusion, and since it is all 1D right now,
    //having these as vector types is ok
-   virtual double mu(double x, double t) const = 0;
-   virtual VectorXd drift(const VectorXd& x, double t) const = 0;
-
-   virtual double sigma(double x, double t) const      = 0;
-   virtual VectorXd sigma(const VectorXd& x, double t) = 0;
+   virtual VectorXd mu(const VectorXd& x, double t) const = 0;
+   virtual VectorXd sigma(const VectorXd& x, double t) const = 0;
 
    VectorXd get_params() const {
       return _params;
@@ -41,34 +38,31 @@ public:
    //because we can either evaluate these at points or vectors, 
    // we'll only need to do this for the exact density of analytic models
    //and therefore the Hermitian expansion of those forms
-   virtual double exact_density(double x0, double xt, double t0, double dt) = 0;
    virtual VectorXd exact_density(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
 
-   virtual double ait_sahalia_density(double  x0, double  xt, double  t0, double dt) = 0;
    virtual VectorXd ait_sahalia_density(const VectorXd&  x0, const VectorXd&  xt, const VectorXd&  t0, double dt) = 0;
 
-   virtual double exact_stepping(double t, double dt, double x, double dZ) = 0;
    virtual VectorXd exact_stepping(double t, double dt, const VectorXd& x, const VectorXd& dZ) = 0;
 
    //and if a model has no clever closed form derivative work, we default to the finite differences
-   double dmu_dX(double x, double t) const {
-      return (1 / (2 * eps)) * (mu(x + eps, t) - mu(x - eps, t)); //central differences
+   VectorXd dmu_dX(VectorXd& x, double t) const {
+      return (1 / (2 * eps)) * (mu(x.array() + eps, t) - mu(x.array() - eps, t)); //central differences
    }
 
-   double dmu_dt(double x, double t) const {
+   VectorXd dmu_dt(VectorXd& x, double t) const {
       return (1 / eps) * (mu(x, t + eps) - mu(x, t)); //forward diference for time
    }
 
-   double d2mu_dX2(double x, double t) const {
-      return (1 / pow(eps, 2)) * (mu(x + eps, t) - 2 * mu(x, t) + mu(x - eps, t));
+   VectorXd d2mu_dX2(VectorXd& x, double t) const {
+      return (1 / pow(eps, 2)) * (mu(x.array() + eps, t) - 2 * mu(x, t) + mu(x.array() - eps, t));
    }
 
-   double dsigma_dX(double x, double t) const {
-      return (1 / (2 * eps)) * (sigma(x + eps, t) - sigma(x - eps, t));
+   VectorXd dsigma_dX(VectorXd& x, double t) const {
+      return (1 / (2 * eps)) * (sigma(x.array() + eps, t) - sigma(x.array() - eps, t));
    }
 
-   double d2sigma_dX2(double x, double t) const {
-      return (1 / pow(eps, 2)) * (sigma(x + eps, t) - 2 * sigma(x, t) + sigma(x - eps, t));
+   VectorXd d2sigma_dX2(VectorXd& x, double t) const {
+      return (1 / pow(eps, 2)) * (sigma(x.array() + eps, t) - 2 * sigma(x, t) + sigma(x.array() - eps, t));
    }
 
    void set_params(const VectorXd& p) {
@@ -98,20 +92,20 @@ private:
 
 class Density {
 public:
-   Density(Cestimator::SDE::BaseModel model) : _pmodel(&model) {
+   Density(Cestimator::SDE::BaseModel& model) : _pmodel(&model) {
    };
-   //overload the call operators
-   virtual double operator() (double x0, double xt, double t0, double dt) = 0;
+   //overload the call operator
    virtual VectorXd operator() (const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
 
     template<typename Derived>
-    Cestimator::SDE::BaseModel model() {
-        return dynamic_cast<const Derived>(*_pmodel);
+    Derived* model() {
+        return dynamic_cast<const Derived*>(*_pmodel);
     }
 private:
    Cestimator::SDE::BaseModel *_pmodel;  //we need this template to work for all derived models.
                                          //so we'll create a pointer of the base class and then
                                          //dynamic cast as necessary later
+                                         
 };
 }
 }
