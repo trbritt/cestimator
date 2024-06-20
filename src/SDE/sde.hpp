@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <memory>
 
-double eps = 1.0e-6;
+#define eps    1.0e-6
+
 
 using namespace Eigen;
 
@@ -88,24 +90,64 @@ protected:
    bool _positive;
 };
 
-class Density {
+class BaseDensity {
 public:
-   Density(Cestimator::SDE::BaseModel& model) : _pmodel(&model) {
+   BaseDensity(std::shared_ptr <Cestimator::SDE::BaseModel>& model) : _pmodel(model) {
    };
-   virtual ~Density() {
+   virtual ~BaseDensity() {
    };
    //overload the call operator
    virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
 
    template <typename Derived>
    Derived *model() {
-      return dynamic_cast <const Derived *>(*_pmodel);
+      return static_cast <Derived *>(_pmodel.get());
    }
 
 private:
-   Cestimator::SDE::BaseModel *_pmodel;  //we need this template to work for all derived models.
-                                         //so we'll create a pointer of the base class and then
-                                         //dynamic cast as necessary later
+   std::shared_ptr <Cestimator::SDE::BaseModel> _pmodel;  //we need this template to work for all derived models.
+   //so we'll create a pointer of the base class and then
+   //dynamic cast as necessary later
+};
+class BasePropagator {
+public:
+   BasePropagator(std::shared_ptr <Cestimator::SDE::BaseModel>& model) : _pmodel(model) {
+   };
+   virtual ~BasePropagator() {
+   };
+
+   virtual VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ) const = 0;
+
+   VectorXd operator()(double t, double dt, const VectorXd& x, const VectorXd& dZ) {
+      return next(t, dt, x, dZ);
+   };
+   template <typename Derived>
+   Derived *model() {
+      return static_cast <Derived *>(_pmodel.get());
+   }
+
+   std::string id() {
+      return _id;
+   }
+
+protected:
+   std::shared_ptr <Cestimator::SDE::BaseModel> _pmodel;
+   std::string _id;
+};
+class Simulator {
+public:
+   Simulator(const double S0, const int M, const double dt, const int num_paths, std::shared_ptr <Cestimator::SDE::BasePropagator>& propagator, const std::optional <int> substep = std::nullopt) : _S0(S0), _M(M), _dt(dt), _n_paths(num_paths), _ppropagator(propagator), _substep(substep.value_or(5)) {
+   };
+   MatrixXd simulate_paths();
+
+private:
+   double _S0, _dt;
+   int _M, _substep, _n_times, _n_paths;
+   MatrixXd _initialise_path(const int num_times);
+   MatrixXd _simulate_substep();
+
+protected:
+   std::shared_ptr <Cestimator::SDE::BasePropagator> _ppropagator;
 };
 }
 }

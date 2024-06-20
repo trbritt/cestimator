@@ -1,7 +1,8 @@
 #include "sde.hpp"
 namespace Cestimator {
 namespace SDE {
-class Brownian : public Cestimator::SDE::BaseModel {
+namespace Model {
+class Brownian : public BaseModel {
    Brownian() {
       _is_analytic       = true;
       _simulation_method = "exact";
@@ -45,5 +46,6 @@ class Brownian : public Cestimator::SDE::BaseModel {
       return VectorXd::Zero(x.size());
    }
 };
+}
 }
 }
