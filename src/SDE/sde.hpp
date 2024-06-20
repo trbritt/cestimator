@@ -15,18 +15,22 @@ using namespace Eigen;
  */
 namespace Cestimator {
 namespace SDE {
-class BaseModel {
+enum ModelTypes { Brownian };
+class Model {
 public:
-   BaseModel(const std::optional <bool> is_analytic = std::nullopt, std::string simulation_method = "milstein")
-      : _is_analytic(is_analytic), _simulation_method(simulation_method), _positive(false) {
+   Model(enum ModelTypes type, std::string simulation_method = "milstein")
+      : _type(type), _simulation_method(simulation_method), _positive(false) {
+      switch (_type) {
+      case (Brownian):
+         _is_analytic = true;
+      }
    };
-   virtual ~BaseModel() = default; //virtual destructor to ensure deconstruct derived children correctly
 
    //evaluate the drift of the SDE at a point or along a range
    //likewise for diffusion, and since it is all 1D right now,
    //having these as vector types is ok
-   virtual VectorXd mu(const VectorXd& x, double t) const    = 0;
-   virtual VectorXd sigma(const VectorXd& x, double t) const = 0;
+   VectorXd mu(const VectorXd& x, double t);
+   VectorXd sigma(const VectorXd& x, double t);
 
    VectorXd get_params() const {
       return _params;
@@ -39,32 +43,20 @@ public:
    //because we can either evaluate these at points or vectors,
    // we'll only need to do this for the exact density of analytic models
    //and therefore the Hermitian expansion of those forms
-   virtual VectorXd exact_density(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
+   VectorXd exact_density(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
 
-   virtual VectorXd ait_sahalia_density(const VectorXd&  x0, const VectorXd&  xt, const VectorXd&  t0, double dt) = 0;
-
-   virtual VectorXd exact_stepping(double t, double dt, const VectorXd& x, const VectorXd& dZ) = 0;
+   VectorXd exact_stepping(double t, double dt, const VectorXd& x, const VectorXd& dZ);
 
    //and if a model has no clever closed form derivative work, we default to the finite differences
-   VectorXd dmu_dX(const VectorXd& x, double t) const {
-      return (1 / (2 * eps)) * (mu(x.array() + eps, t) - mu(x.array() - eps, t)); //central differences
-   }
+   VectorXd dmu_dX(const VectorXd& x, double t);
 
-   VectorXd dmu_dt(const VectorXd& x, double t) const {
-      return (1 / eps) * (mu(x, t + eps) - mu(x, t)); //forward diference for time
-   }
+   VectorXd dmu_dt(const VectorXd& x, double t);
 
-   VectorXd d2mu_dX2(const VectorXd& x, double t) const {
-      return (1 / pow(eps, 2)) * (mu(x.array() + eps, t) - 2 * mu(x, t) + mu(x.array() - eps, t));
-   }
+   VectorXd d2mu_dX2(const VectorXd& x, double t);
 
-   VectorXd dsigma_dX(const VectorXd& x, double t) const {
-      return (1 / (2 * eps)) * (sigma(x.array() + eps, t) - sigma(x.array() - eps, t));
-   }
+   VectorXd dsigma_dX(const VectorXd& x, double t);
 
-   VectorXd d2sigma_dX2(const VectorXd& x, double t) const {
-      return (1 / pow(eps, 2)) * (sigma(x.array() + eps, t) - 2 * sigma(x, t) + sigma(x.array() - eps, t));
-   }
+   VectorXd d2sigma_dX2(const VectorXd& x, double t);
 
    void set_params(const VectorXd& p) {
       _positive = set_positivity(p);
@@ -88,30 +80,28 @@ protected:
    std::string _simulation_method;
    VectorXd _params;
    bool _positive;
+   enum ModelTypes _type;
 };
 
 class BaseDensity {
 public:
-   BaseDensity(std::shared_ptr <Cestimator::SDE::BaseModel>& model) : _pmodel(model) {
+   BaseDensity(Cestimator::SDE::Model& model) : _pmodel(&model) {
    };
    virtual ~BaseDensity() {
    };
    //overload the call operator
-   virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, const VectorXd& t0, double dt) = 0;
+   virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) = 0;
 
-   template <typename Derived>
-   Derived *model() {
-      return static_cast <Derived *>(_pmodel.get());
+   Model *model() {
+      return _pmodel;
    }
 
 private:
-   std::shared_ptr <Cestimator::SDE::BaseModel> _pmodel;  //we need this template to work for all derived models.
-   //so we'll create a pointer of the base class and then
-   //dynamic cast as necessary later
+   Cestimator::SDE::Model *_pmodel;
 };
 class BasePropagator {
 public:
-   BasePropagator(std::shared_ptr <Cestimator::SDE::BaseModel>& model) : _pmodel(model) {
+   BasePropagator(Cestimator::SDE::Model& model) : _pmodel(&model) {
    };
    virtual ~BasePropagator() {
    };
@@ -121,9 +111,8 @@ public:
    VectorXd operator()(double t, double dt, const VectorXd& x, const VectorXd& dZ) {
       return next(t, dt, x, dZ);
    };
-   template <typename Derived>
-   Derived *model() {
-      return static_cast <Derived *>(_pmodel.get());
+   Model *model() {
+      return _pmodel;
    }
 
    std::string id() {
@@ -131,7 +120,7 @@ public:
    }
 
 protected:
-   std::shared_ptr <Cestimator::SDE::BaseModel> _pmodel;
+   Cestimator::SDE::Model *_pmodel;
    std::string _id;
 };
 class Simulator {
@@ -149,5 +138,61 @@ private:
 protected:
    std::shared_ptr <Cestimator::SDE::BasePropagator> _ppropagator;
 };
+
+namespace Propagator {
+class Exact : public BasePropagator {
+   Exact(Cestimator::SDE::Model& model) : BasePropagator(model) {
+      _id = "exact";
+   }
+
+   VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ);
+};
+
+class Euler : public BasePropagator {
+   Euler(Cestimator::SDE::Model& model) : BasePropagator(model) {
+      _id = "euler";
+   }
+
+   VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ);
+};
+
+class Milstein : public BasePropagator {
+   Milstein(Cestimator::SDE::Model& model) : BasePropagator(model) {
+      _id = "milstein";
+   }
+
+   VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ);
+};
+}
+namespace Density {
+class Exact : public BaseDensity {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+
+class AitSahalia : public BaseDensity {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+
+class Euler : public BaseDensity {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+
+class Ozaki : public BaseDensity {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+class ShojiOzaki : public BaseDensity {
+public:
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+
+class Elerian : public BaseDensity {
+public:
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+
+class Kessler : public BaseDensity {
+   VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+};
+}
 }
 }
