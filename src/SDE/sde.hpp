@@ -44,23 +44,23 @@ public:
    virtual VectorXd exact_stepping(double t, double dt, const VectorXd& x, const VectorXd& dZ) = 0;
 
    //and if a model has no clever closed form derivative work, we default to the finite differences
-   VectorXd dmu_dX(VectorXd& x, double t) const {
+   VectorXd dmu_dX(const VectorXd& x, double t) const {
       return (1 / (2 * eps)) * (mu(x.array() + eps, t) - mu(x.array() - eps, t)); //central differences
    }
 
-   VectorXd dmu_dt(VectorXd& x, double t) const {
+   VectorXd dmu_dt(const VectorXd& x, double t) const {
       return (1 / eps) * (mu(x, t + eps) - mu(x, t)); //forward diference for time
    }
 
-   VectorXd d2mu_dX2(VectorXd& x, double t) const {
+   VectorXd d2mu_dX2(const VectorXd& x, double t) const {
       return (1 / pow(eps, 2)) * (mu(x.array() + eps, t) - 2 * mu(x, t) + mu(x.array() - eps, t));
    }
 
-   VectorXd dsigma_dX(VectorXd& x, double t) const {
+   VectorXd dsigma_dX(const VectorXd& x, double t) const {
       return (1 / (2 * eps)) * (sigma(x.array() + eps, t) - sigma(x.array() - eps, t));
    }
 
-   VectorXd d2sigma_dX2(VectorXd& x, double t) const {
+   VectorXd d2sigma_dX2(const VectorXd& x, double t) const {
       return (1 / pow(eps, 2)) * (sigma(x.array() + eps, t) - 2 * sigma(x, t) + sigma(x.array() - eps, t));
    }
 
@@ -82,7 +82,6 @@ protected:
       return false;
    };
 
-private:
    bool _is_analytic;
    std::string _simulation_method;
    VectorXd _params;
