@@ -1,16 +1,17 @@
 #include "sde.hpp"
 
-inline VectorXd Cestimator::SDE::Density::Exact::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+
+ VectorXd Cestimator::SDE::Density::Exact::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    return this->model()->exact_density(x0, xt, t0, dt);
 };
 
-inline VectorXd Cestimator::SDE::Density::Euler::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+ VectorXd Cestimator::SDE::Density::Euler::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd scatter2dt = (this->model()->sigma(x0, t0).array().square()) * 2 * dt;
    ArrayXd location_dt    = x0.array() + this->model()->mu(x0, t0).array() * dt;
    return ((-(xt.array() - location_dt).square() / scatter2dt).exp() / scatter2dt.sqrt() / std::sqrt(M_PI)).matrix();
 };
 
-inline VectorXd Cestimator::SDE::Density::Ozaki::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+ VectorXd Cestimator::SDE::Density::Ozaki::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd scatter    = this->model()->sigma(x0, t0).array();
    ArrayXd location     = this->model()->mu(x0, t0).array();
    ArrayXd dlocation_dX = this->model()->dmu_dX(x0, t0).array();
@@ -23,7 +24,7 @@ inline VectorXd Cestimator::SDE::Density::Ozaki::operator()(const VectorXd& x0, 
    return ((-0.5 * ((xt.array() - Mt) / Vt).square()).exp() / (std::sqrt(2 * M_PI) * Vt)).matrix();
 };
 
-inline VectorXd Cestimator::SDE::Density::ShojiOzaki::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+ VectorXd Cestimator::SDE::Density::ShojiOzaki::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd scatter  = this->model()->sigma(x0, t0).array();
    ArrayXd location = this->model()->mu(x0, t0).array();
 
@@ -42,7 +43,7 @@ inline VectorXd Cestimator::SDE::Density::ShojiOzaki::operator()(const VectorXd&
    ;
 };
 
-inline VectorXd Cestimator::SDE::Density::Elerian::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+ VectorXd Cestimator::SDE::Density::Elerian::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd dscatter_dX = this->model()->dsigma_dX(x0, t0).array();
    if ((dscatter_dX.abs() < 1e-5).any()) {
       return Cestimator::SDE::Density::Euler::operator()(x0, xt, t0, dt);
@@ -61,7 +62,7 @@ inline VectorXd Cestimator::SDE::Density::Elerian::operator()(const VectorXd& x0
    return (z.pow(-0.5) * ch / (2 * A.abs() * sqrt(2 * M_PI))).matrix();
 };
 
-inline VectorXd Cestimator::SDE::Density::Kessler::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
+ VectorXd Cestimator::SDE::Density::Kessler::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd scatter  = this->model()->sigma(x0, t0).array();
    ArrayXd scatter2 = scatter.pow(2);
    ArrayXd location = this->model()->mu(x0, t0).array();
@@ -78,3 +79,4 @@ inline VectorXd Cestimator::SDE::Density::Kessler::operator()(const VectorXd& x0
          scatter2 * (d2scatter_dX2 * x0.array() + 2 * dscatter_dX + tmp + scatter * d2scatter_dX2)) * d - E.pow(2);
    V   = V.abs().sqrt();
    return ((-0.5 * ((xt.array() - E) / V).pow(2)).exp() / (sqrt(2 * M_PI) * V)).matrix();
+ };
