@@ -36,7 +36,6 @@ MatrixXd Simulator::_simulate_substep() {
    return path(all, seq(0, last, _substep));
 }
 
-
 MatrixXd Simulator::simulate_paths() {
    if (_substep > 1 && _ppropagator.get()->id() == "exact") {
       return this->_simulate_substep();

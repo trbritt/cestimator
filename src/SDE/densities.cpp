@@ -47,8 +47,8 @@ VectorXd Cestimator::SDE::Density::ShojiOzaki::operator()(const VectorXd& x0, co
 VectorXd Cestimator::SDE::Density::Elerian::operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    ArrayXd dscatter_dX = this->model()->dsigma_dX(x0, t0).array();
    if ((dscatter_dX.abs() < 1e-5).any()) {
-      std::shared_ptr<Cestimator::SDE::Model> _local_model(this->model());
-      Cestimator::SDE::Density::Euler b(_local_model);
+      std::shared_ptr <Cestimator::SDE::Model> _local_model(this->model());
+      Cestimator::SDE::Density::Euler          b(_local_model);
       return b(x0, xt, t0, dt);
    }
    ArrayXd scatter  = this->model()->sigma(x0, t0).array();
