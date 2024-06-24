@@ -16,7 +16,7 @@ using namespace Eigen;
 namespace Cestimator {
 namespace SDE {
 enum ModelTypes { Brownian };
-class Model {
+class Model : public std::enable_shared_from_this<Model> {
 public:
    Model(enum ModelTypes type, std::string simulation_method = "milstein")
       : _type(type), _simulation_method(simulation_method), _positive(false) {
@@ -71,6 +71,10 @@ public:
       return _simulation_method;
    }
 
+   std::shared_ptr<Model> get_ptr(){
+      return shared_from_this();
+   }
+
 protected:
    virtual bool set_positivity(const VectorXd& p) const {
       return false;
@@ -85,7 +89,7 @@ protected:
 
 class BaseDensity {
 public:
-   BaseDensity(Cestimator::SDE::Model& model) : _pmodel(&model) {
+   BaseDensity(std::shared_ptr <Cestimator::SDE::Model>& model) : _pmodel(model) {
    };
    virtual ~BaseDensity() {
    };
@@ -93,34 +97,33 @@ public:
    virtual VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt) = 0;
 
    Model *model() {
-      return _pmodel;
+      return _pmodel.get();
    }
 
 private:
-   Cestimator::SDE::Model *_pmodel;
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
-class BasePropagator {
+
+class BasePropagator : std::enable_shared_from_this<BasePropagator>{
 public:
-   BasePropagator(Cestimator::SDE::Model& model) : _pmodel(&model) {
+   BasePropagator(std::shared_ptr <Cestimator::SDE::Model>& model) : _pmodel(model) {
    };
    virtual ~BasePropagator() {
    };
 
-   virtual VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ) const = 0;
-
-   VectorXd operator()(double t, double dt, const VectorXd& x, const VectorXd& dZ) {
-      return next(t, dt, x, dZ);
-   };
    Model *model() {
-      return _pmodel;
+      return _pmodel.get();
    }
 
    std::string id() {
       return _id;
    }
+   std::shared_ptr<BasePropagator> get_ptr(){
+      return shared_from_this();
+   }
 
 protected:
-   Cestimator::SDE::Model *_pmodel;
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
    std::string _id;
 };
 class Simulator {
@@ -141,7 +144,8 @@ protected:
 
 namespace Propagator {
 class Exact : public BasePropagator {
-   Exact(Cestimator::SDE::Model& model) : BasePropagator(model) {
+public:
+   Exact(std::shared_ptr <Cestimator::SDE::Model>& model) : BasePropagator(model) {
       _id = "exact";
    }
 
@@ -149,7 +153,8 @@ class Exact : public BasePropagator {
 };
 
 class Euler : public BasePropagator {
-   Euler(Cestimator::SDE::Model& model) : BasePropagator(model) {
+public:
+   Euler(std::shared_ptr <Cestimator::SDE::Model>& model) : BasePropagator(model) {
       _id = "euler";
    }
 
@@ -157,7 +162,8 @@ class Euler : public BasePropagator {
 };
 
 class Milstein : public BasePropagator {
-   Milstein(Cestimator::SDE::Model& model) : BasePropagator(model) {
+public:
+   Milstein(std::shared_ptr <Cestimator::SDE::Model>& model) : BasePropagator(model) {
       _id = "milstein";
    }
 
@@ -166,32 +172,78 @@ class Milstein : public BasePropagator {
 }
 namespace Density {
 class Exact : public BaseDensity {
+public:
+   using BaseDensity::model;
+   Exact(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 
 class AitSahalia : public BaseDensity {
+public:
+   using BaseDensity::model;
+   AitSahalia(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 
 class Euler : public BaseDensity {
+public:
+   using BaseDensity::model;
+   Euler(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 
 class Ozaki : public BaseDensity {
+public:
+   using BaseDensity::model;
+   Ozaki(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 class ShojiOzaki : public BaseDensity {
 public:
+   using BaseDensity::model;
+   ShojiOzaki(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 
 class Elerian : public BaseDensity {
 public:
+   using BaseDensity::model;
+   Elerian(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 
 class Kessler : public BaseDensity {
+   using BaseDensity::model;
+   Kessler(std::shared_ptr <Cestimator::SDE::Model>& model) : BaseDensity(model) {
+   };
    VectorXd operator()(const VectorXd& x0, const VectorXd& xt, double t0, double dt);
+
+private:
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
 }
 }
