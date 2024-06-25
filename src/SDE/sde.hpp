@@ -25,16 +25,20 @@ public:
       switch (_modeltype) {
       case (Brownian):
          _is_analytic = true;
+         break;
       }
       switch (_propagatortype) {
       case (Exact):
          _simulation_method = "exact";
+         break;
 
       case (Euler):
          _simulation_method = "euler";
+         break;
 
       case (Milstein):
          _simulation_method = "milstein";
+         break;
       }
    };
 
@@ -97,9 +101,9 @@ protected:
    bool _is_analytic;
    std::string _simulation_method;
    VectorXd _params;
-   bool _positive;
    enum ModelTypes _modeltype;
    enum PropagatorTypes _propagatortype;
+   bool _positive;
 };
 
 class BaseDensity {
@@ -120,9 +124,19 @@ private:
 };
 class Simulator {
 public:
-   Simulator(const double S0, const int M, const double dt, const int num_paths, std::shared_ptr <Cestimator::SDE::Model>& model, const std::optional <int> substep = std::nullopt) : _S0(S0), _M(M), _dt(dt), _n_paths(num_paths), _pmodel(model), _substep(substep.value_or(5)) {
+   Simulator(std::shared_ptr <Cestimator::SDE::Model>& model, const double S0, const double dt, const int M, const int num_paths, const std::optional <int> substep = std::nullopt) {
+      _pmodel  = model;
+      _S0      = S0;
+      _dt      = dt;
+      _M       = M;
+      _n_paths = num_paths;
+      _substep = substep.value_or(5);
    };
    MatrixXd simulate_paths();
+
+   int get_npaths() {
+      return _n_paths;
+   }
 
 private:
    double _S0, _dt;

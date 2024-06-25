@@ -37,7 +37,6 @@ MatrixXd Simulator::_simulate_substep() {
 }
 
 MatrixXd Simulator::simulate_paths() {
-
    if (_substep > 1 && _pmodel.get()->simulation_method() == "exact") {
       return this->_simulate_substep();
    }

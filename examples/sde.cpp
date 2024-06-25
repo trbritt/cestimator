@@ -13,40 +13,38 @@ int main(int argc, char *argv[]) {
    VectorXd params(2);
    params << mu, sigma;
 
-   try {
-      Cestimator::SDE::Model *gbm = new Cestimator::SDE::Model(
-         Cestimator::SDE::ModelTypes::Brownian, "milstein"
-         );
+   Cestimator::SDE::Model *gbm = new Cestimator::SDE::Model(
+      Cestimator::SDE::ModelTypes::Brownian, Cestimator::SDE::PropagatorTypes::Milstein
+      );
 
-      gbm->set_params(params);
-      std::cout << "hre" << std::endl;
+   gbm->set_params(params);
+   std::cout << "hre" << std::endl;
 
-      // now, manage the model by a shared pointer
-      std::shared_ptr <Cestimator::SDE::Model> _pgbm(gbm);
+   // now, manage the model by a shared pointer
+   std::shared_ptr <Cestimator::SDE::Model> _pgbm(gbm);
 
-      //create propagator
-      Cestimator::SDE::Propagator *propogator = new Cestimator::SDE::Propagator(Cestimator::SDE::PropagatorTypes::Exact, _pgbm);
+   //parameters of simulation
+   const double T    = 5;     //num years of sample
+   const double freq = 250.0; //num obvs per year
+   const double dt   = 1.0 / freq;
+   std::cout << dt << std::endl;
+   const int M = static_cast <int>(T * freq);
 
-      //and shared ptr to it
-      std::shared_ptr <Cestimator::SDE::Propagator> _peprop(propogator);
+   //create the simualtor
+   Cestimator::SDE::Simulator sim(_pgbm, S0, dt, M, 10, 5);
 
-      //parameters of simulation
-      const double T    = 5;   //num years of sample
-      const int    freq = 250; //num obvs per year
-      const double dt   = 1 / freq;
-      const int    M    = static_cast <int>(T * freq);
-
-      //create the simualtor
-      Cestimator::SDE::Simulator sim(S0, M, dt, 10, _peprop, 5);
-
-      //run
-      MatrixXd paths = sim.simulate_paths();
-      std::cout << paths.rows() << " " << paths.cols() << std::endl;
+   //run
+   MatrixXd paths = sim.simulate_paths();
+   std::cout << paths.rows() << " " << paths.cols() << std::endl;
+   
+   #ifdef __VISUALIZER
+   matplot::hold(matplot::on);
+   for (int n = 0; n < sim.get_npaths(); ++n) {
+      auto l = matplot::plot(Cestimator::Utils::vec2stdvec(VectorXd::LinSpaced(paths.cols(), 0, paths.cols())), Cestimator::Utils::vec2stdvec(paths.row(n)), "-o");
+      l->marker_size(5);
+      l->marker_face_color("#0000FFF0");
    }
-   catch (const std::bad_weak_ptr& bwp) {
-      std::cerr << bwp.what();
-      exit(-1);
-   }
-
+   matplot::show();
+   #endif
    Cestimator::Utils::goodbye();
 }
