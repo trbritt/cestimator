@@ -20,11 +20,21 @@ enum PropagatorTypes { Exact, Euler, Milstein };
 
 class Model : public std::enable_shared_from_this <Model> {
 public:
-   Model(enum ModelTypes type, std::string simulation_method = "milstein")
-      : _type(type), _simulation_method(simulation_method), _positive(false) {
-      switch (_type) {
+   Model(enum ModelTypes modeltype, enum PropagatorTypes propagatortype)
+      : _modeltype(modeltype), _propagatortype(propagatortype), _positive(false) {
+      switch (_modeltype) {
       case (Brownian):
          _is_analytic = true;
+      }
+      switch (_propagatortype) {
+      case (Exact):
+         _simulation_method = "exact";
+
+      case (Euler):
+         _simulation_method = "euler";
+
+      case (Milstein):
+         _simulation_method = "milstein";
       }
    };
 
@@ -77,6 +87,8 @@ public:
       return shared_from_this();
    }
 
+   VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ);
+
 protected:
    virtual bool set_positivity(const VectorXd& p) const {
       return false;
@@ -86,7 +98,8 @@ protected:
    std::string _simulation_method;
    VectorXd _params;
    bool _positive;
-   enum ModelTypes _type;
+   enum ModelTypes _modeltype;
+   enum PropagatorTypes _propagatortype;
 };
 
 class BaseDensity {
@@ -105,45 +118,9 @@ public:
 private:
    std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
-
-class Propagator : std::enable_shared_from_this <Propagator> {
-public:
-   Propagator(enum PropagatorTypes type, std::shared_ptr <Cestimator::SDE::Model>& model) : _pmodel(model), _type(type) {
-      switch (_type) {
-      case (Exact):
-         _id = "exact";
-
-      case (Euler):
-         _id = "euler";
-
-      case (Milstein):
-         _id = "milstein";
-      }
-   };
-
-
-   Model *model() {
-      return _pmodel.get();
-   }
-
-   std::string id() {
-      return _id;
-   }
-
-   std::shared_ptr <Propagator> get_ptr() {
-      return shared_from_this();
-   }
-
-   VectorXd next(double t, double dt, const VectorXd& x, const VectorXd& dZ);
-
-protected:
-   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
-   std::string _id;
-   enum PropagatorTypes _type;
-};
 class Simulator {
 public:
-   Simulator(const double S0, const int M, const double dt, const int num_paths, std::shared_ptr <Cestimator::SDE::Propagator>& propagator, const std::optional <int> substep = std::nullopt) : _S0(S0), _M(M), _dt(dt), _n_paths(num_paths), _ppropagator(propagator), _substep(substep.value_or(5)) {
+   Simulator(const double S0, const int M, const double dt, const int num_paths, std::shared_ptr <Cestimator::SDE::Model>& model, const std::optional <int> substep = std::nullopt) : _S0(S0), _M(M), _dt(dt), _n_paths(num_paths), _pmodel(model), _substep(substep.value_or(5)) {
    };
    MatrixXd simulate_paths();
 
@@ -154,8 +131,9 @@ private:
    MatrixXd _simulate_substep();
 
 protected:
-   std::shared_ptr <Cestimator::SDE::Propagator> _ppropagator;
+   std::shared_ptr <Cestimator::SDE::Model> _pmodel;
 };
+
 namespace Density {
 class Exact : public BaseDensity {
 public:

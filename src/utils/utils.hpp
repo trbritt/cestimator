@@ -56,6 +56,8 @@ public:
 std::vector <double> matrix2vector(MatrixXd& x);
 
         #ifdef __VISUALIZER
+std::vector <double> vec2stdvec(const VectorXd& a);
+
 class Visualizer {
 public:
    Visualizer() {

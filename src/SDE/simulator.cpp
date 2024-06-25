@@ -31,19 +31,20 @@ MatrixXd Simulator::_simulate_substep() {
    MatrixXd norms  = generate_normal_matrix(_n_paths, _M * _substep);
    double   dt_sub = _dt / _substep;
    for (int i = 0; i < _M * _substep; ++i) {
-      path(all, i + 1) = _ppropagator.get()->next(i * dt_sub, dt_sub, path(all, i), norms(all, i));
+      path(all, i + 1) = _pmodel.get()->next(i * dt_sub, dt_sub, path(all, i), norms(all, i));
    }
    return path(all, seq(0, last, _substep));
 }
 
 MatrixXd Simulator::simulate_paths() {
-   if (_substep > 1 && _ppropagator.get()->id() == "exact") {
+
+   if (_substep > 1 && _pmodel.get()->simulation_method() == "exact") {
       return this->_simulate_substep();
    }
    MatrixXd path  = this->_initialise_path(_M + 1);
    MatrixXd norms = generate_normal_matrix(_n_paths, _M);
    for (int i = 0; i < _M; ++i) {
-      path(all, i + 1) = _ppropagator.get()->next(i * _dt, _dt, path(all, i), norms(all, i));
+      path(all, i + 1) = _pmodel.get()->next(i * _dt, _dt, path(all, i), norms(all, i));
    }
    return path(all, seq(0, last, _substep));
 }

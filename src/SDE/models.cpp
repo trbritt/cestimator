@@ -1,14 +1,14 @@
 #include "sde.hpp"
 
 VectorXd Cestimator::SDE::Model::mu(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       return _params(0) * (x.array() > -10000).cast <double>().matrix();
    }
 }
 
 VectorXd Cestimator::SDE::Model::sigma(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       return _params(1) * (x.array() > -10000).cast <double>().matrix();
    }
@@ -17,7 +17,7 @@ VectorXd Cestimator::SDE::Model::sigma(const VectorXd& x, double t) {
 VectorXd Cestimator::SDE::Model::exact_density(const VectorXd& x0, const VectorXd& xt, double t0, double dt) {
    double mu    = _params(0);
    double sigma = _params(1);
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       VectorXd mean = x0.array() + mu * dt;
       VectorXd density(xt.size());
@@ -36,7 +36,7 @@ VectorXd Cestimator::SDE::Model::exact_stepping(double t, double dt, const Vecto
 }
 
 VectorXd Cestimator::SDE::Model::dmu_dt(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       return VectorXd::Zero(x.size());
 
@@ -46,7 +46,7 @@ VectorXd Cestimator::SDE::Model::dmu_dt(const VectorXd& x, double t) {
 }
 
 VectorXd Cestimator::SDE::Model::dsigma_dX(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       return VectorXd::Zero(x.size());
 
@@ -56,7 +56,7 @@ VectorXd Cestimator::SDE::Model::dsigma_dX(const VectorXd& x, double t) {
 }
 
 VectorXd Cestimator::SDE::Model::d2sigma_dX2(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    case (Brownian):
       return VectorXd::Zero(x.size());
 
@@ -67,14 +67,14 @@ VectorXd Cestimator::SDE::Model::d2sigma_dX2(const VectorXd& x, double t) {
 
 //and if a model has no clever closed form derivative work, we default to the finite differences
 VectorXd Cestimator::SDE::Model::dmu_dX(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    default:
       return (1 / (2 * eps)) * (mu(x.array() + eps, t) - mu(x.array() - eps, t));         //central differences
    }
 }
 
 VectorXd Cestimator::SDE::Model::d2mu_dX2(const VectorXd& x, double t) {
-   switch (_type) {
+   switch (_modeltype) {
    default:
       return (1 / pow(eps, 2)) * (mu(x.array() + eps, t) - 2 * mu(x, t) + mu(x.array() - eps, t));
    }
