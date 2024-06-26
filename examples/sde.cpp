@@ -7,18 +7,19 @@ int main(int argc, char *argv[]) {
    Cestimator::Utils::banner("");
 
    const double S0    = 0.4;
+   const double kappa = 5;
    const double mu    = 2;
    const double sigma = 0.5;
+   const double gamma = 1.5;
 
-   VectorXd params(2);
-   params << mu, sigma;
+   VectorXd params(4);
+   params << kappa, mu, sigma, gamma;
 
    Cestimator::SDE::Model *gbm = new Cestimator::SDE::Model(
-      Cestimator::SDE::ModelTypes::Brownian, Cestimator::SDE::PropagatorTypes::Milstein
+      Cestimator::SDE::ModelTypes::CEV, Cestimator::SDE::PropagatorTypes::Euler
       );
 
    gbm->set_params(params);
-   std::cout << "hre" << std::endl;
 
    // now, manage the model by a shared pointer
    std::shared_ptr <Cestimator::SDE::Model> _pgbm(gbm);
@@ -35,8 +36,7 @@ int main(int argc, char *argv[]) {
 
    //run
    MatrixXd paths = sim.simulate_paths();
-   std::cout << paths.rows() << " " << paths.cols() << std::endl;
-   
+
    #ifdef __VISUALIZER
    matplot::hold(matplot::on);
    for (int n = 0; n < sim.get_npaths(); ++n) {

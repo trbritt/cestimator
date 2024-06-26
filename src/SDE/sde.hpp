@@ -15,7 +15,7 @@ using namespace Eigen;
  */
 namespace Cestimator {
 namespace SDE {
-enum ModelTypes { Brownian };
+enum ModelTypes { Brownian, CEV };
 enum PropagatorTypes { Exact, Euler, Milstein };
 
 class Model : public std::enable_shared_from_this <Model> {
@@ -24,6 +24,10 @@ public:
       : _modeltype(modeltype), _propagatortype(propagatortype), _positive(false) {
       switch (_modeltype) {
       case (Brownian):
+         _is_analytic = true;
+         break;
+
+      case (CEV):
          _is_analytic = true;
          break;
       }
